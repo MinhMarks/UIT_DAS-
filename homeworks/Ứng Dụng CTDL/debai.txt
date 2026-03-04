@@ -1,0 +1,17 @@
+CTDL & Giải thuật vận dụng trong thực tế
+
+Hãy kể tên và giới thiệu vắn tắt 3 CTDL và 3 thuật toán được sử dụng nhiều nhất trong:
+
+- Hệ điều hành
+- Hệ quản trị CSDL
+- Hệ thông tin địa lý (GIS)
+
+======
+
+Yêu cầu bài làm: 
+- Hãy trình bày bài làm dưới dạng mã latex 
+- Các ý cần được triển khai đầy đủ, phải có câu chủ đề, giải thích lập luận rõ ràng, có ví dụ minh họa cụ thể, có hình ảnh minh họa (nếu cần thiết)
+- Trình bày sạch sẽ, khoa học, dễ đọc, dễ hiểu
+- Không đạo văn, không sao chép từ bất kỳ nguồn nào
+- Không được viết kiểu gạch đầu dòng liệt kê sơ sài, phải trình bày thành các đoạn văn hoàn chỉnh
+

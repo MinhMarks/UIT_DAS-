@@ -1,0 +1,22 @@
+Tạo ứng dụng minh họa sắp xếp ngoại
+Các yêu cầu hoàn thành:
+Xây dựng ứng dụng cho phép người dùng chọn lựa tập tin dữ liệu nguồn và sắp xếp dữ liệu trong tập tin này tăng dần. 
+
+Tập tin lưu dữ liệu là các số thực (8bytes) ở dạng tập tin nhị phân
+
+Chương trình cần minh họa quá trình sắp xếp với các tập tin có kích thước nhỏ.
+
+Bài nộp: 
+
+Bản hướng dẫn sử dụng chương trình (PDF) nộp vào trang môn học
+Mã nguồn và các tài liệu liên quan để trên github cá nhân
+
+======
+
+Yêu cầu bảng hướng dẫn sử dụng chương trình: 
+- Hãy trình bày bài làm dưới dạng mã latex, không cần chuyển sang PDF.  
+- Các ý cần được triển khai đầy đủ, phải có câu chủ đề, giải thích lập luận rõ ràng, có ví dụ minh họa cụ thể, có hình ảnh minh họa (nếu cần thiết)
+- Trình bày sạch sẽ, khoa học, dễ đọc, dễ hiểu
+- Không đạo văn, không sao chép từ bất kỳ nguồn nào
+- Không được viết kiểu gạch đầu dòng liệt kê sơ sài, phải trình bày thành các đoạn văn hoàn chỉnh
+

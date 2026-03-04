@@ -1,0 +1,45 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+
+% Page layout
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+\title{\textbf{HƯỚNG DẪN SỬ DỤNG VÀ THUYẾT MINH \\ ỨNG DỤNG MINH HỌA SẮP XẾP NGOẠI}}
+\author{Học viên: [Tên Học Viên]}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Tài liệu này cung cấp hướng dẫn chi tiết về cách cài đặt, vận hành và phân tích quá trình hoạt động của ứng dụng minh họa giải thuật Sắp xếp Ngoại (External Sort). Ứng dụng được thiết kế đặc biệt nhằm giúp người dùng trực quan hóa cách hệ thống máy tính có thể sắp xếp một lượng dữ liệu khổng lồ vượt quá giới hạn thể tích của bộ nhớ trong (RAM) thông qua kỹ thuật phân mảnh và trộn K-đường (K-Way Merge Sort) trên dữ liệu nhị phân chứa các số thực tám byte.
+\end{abstract}
+
+\section{Giới thiệu chung về ứng dụng}
+
+Ứng dụng minh họa Sắp xếp Ngoại được phát triển bằng ngôn ngữ lập trình Python, kết hợp với bộ thư viện giao diện đồ họa chuẩn Tkinter nhằm đảm bảo tính tương thích cao và dễ dàng triển khai trên nhiều nền tảng hệ điều hành. Mục tiêu cốt lõi của phần mềm là hiện thực hóa thuật toán lập lịch thao tác trên bộ nhớ thứ cấp. Khi đối mặt với một tập tin dữ liệu có dung lượng lấn át dung lượng RAM khả dụng, thuật toán thay vì tải toàn bộ sẽ chủ động cắn nhỏ tập tin thành các mảnh dữ liệu (chunks) vừa vặn với kích thước RAM giả lập. Từng khối dữ liệu nhỏ bé này sẽ lần lượt trải qua quá trình sắp xếp nhanh trong bộ nhớ và tạm trú ngược trở lại trên ổ cứng. Cuối cùng, công cụ sẽ điều phối một quy trình trộn đa diện bằng cấu trúc Min-Heap để kết nối các tệp tạm thành chuỗi kết quả hoàn hảo. Những tiến trình cơ học thầm lặng này được phần mềm phơi bày một cách tuần tự lên màn hình log để người trực tiếp tương tác có thể thấu hiểu sâu sắc quá trình vận hành luân chuyển dữ liệu từ bên ngoài vào bên trong lõi tính toán.
+
+\section{Kiến trúc và Thao tác vận hành}
+
+Để đảm bảo hiệu ứng minh họa được trực quan nhất, ứng dụng đã cung cấp sẵn công cụ sinh dữ liệu nhị phân nội bộ. Quá trình vận hành ứng dụng có thể được chia thành các bước tiếp nối liên tục từ khởi tạo dữ kiện, thiết lập môi trường giả lập và theo dõi đáp ứng. 
+
+Bước đầu tiên trong quy trình, người sử dụng cần chỉ định dữ liệu đầu vào. Giao diện phần mềm cung cấp một khu vực chuyên biệt cho phép người dùng nhập vào số lượng phần tử cần khởi tạo. Đơn cử, khi người dùng nhập giá trị năm mươi và kích hoạt lệnh tạo, ứng dụng sẽ ngay lập tức sử dụng thư viện xử lý số ngẫu nhiên để viết ra một tệp nhị phân có định dạng phần tử đúng tám byte đại diện cho chuẩn số thực kép. Đây là bước đệm thiết yếu mô phỏng sự tồn tại của một tập dữ liệu ban sơ chưa được qua sắp xếp.
+
+Ở bước can thiệp môi trường tiếp theo, linh hồn của sự minh họa nằm ở việc khống chế định mức RAM. Thông qua ô thiết lập kích thước khối (Chunk Size), người dùng hoàn toàn nắm quyền quy định mỗi lần hệ thống được phép "nuốt trọn" bao nhiêu biến số. Ví dụ, đối chiếu với một tệp vật lý bao gồm năm mươi phần tử, việc giới hạn sức chứa mức RAM xuống chỉ bằng mười sẽ ép tiến trình thuật toán bắt buộc phải băm tập tin cồng kềnh thành năm phân vùng rời rạc. Việc khống chế dung lượng nhỏ mang lại lợi thế mô phỏng tuyệt vời, biểu đạt chính xác hành vi bóp nghẹt tài nguyên trong thực tế, giúp quan sát viên đánh giá tường tận thao tác ngắt quãng và luân phiên tải lại từng góc nhỏ của ứng dụng vào trong lõi.
+
+Thời khắc vận hành cuối cùng bắt đầu bằng việc nhấn chọn tiến trình xếp hạng. Từ giao thức gọi đa luồng (multithreading), hạt nhân phía sau nền sẽ tự động nhận lệnh đọc tệp, cẩn thận chia đúng các lát cắt quy chuẩn. Mọi tác vụ cấp thấp như chẻ nhỏ tệp tạm hay chọc lọc phần tử đều gửi tín hiệu phản hồi lên khung văn bản giám sát. Làn sóng chữ đổ xuống báo cáo trạng thái từng tệp trung gian vừa sinh ra, để rồi cuộn trào vào tiến trình gom nhặt từ Min-Heap tạo ra một tệp kết quả. Dòng trạng thái dọn dẹp kết thúc đánh dấu tiến trình dọn rác và hoàn trả toàn bộ quyền kiểm soát lại cho người dung, lưu lại tệp cấu trúc đã phân tầng sạch sẽ trên ổ cứng lưu trữ. 
+
+\section{Kết luận hiệu năng và ứng dụng thực tiễn}
+
+Nhờ vào việc mô phỏng quá trình này, sinh viên và những người nghiên cứu chuyên sâu về cấu trúc dữ liệu có được một mô hình thu nhỏ vững chãi để đào sâu vào bài toán đánh đổi giữa năng lực vi giải và rào cản băng thông đĩa từ. Thay vì những dòng lệnh cứng nhắc hay lý thuyết vô cảm, mỗi một chunk sinh ra là minh chứng cho trí tuệ nhân loại vào thập niên hoàng kim khi giải quyết vấn nạn tràn mảng. Công cụ tuy nhỏ gọn nhạy bén nhưng hội tụ đầy đủ tinh hoa phương án ứng phó, cung cấp góc nhìn đa chiều vô cùng thiết thực cho chuyên ngành cấu trúc dữ liệu ứng dụng.
+
+\end{document}

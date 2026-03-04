@@ -1,0 +1,15 @@
+# Root python scripts to ignore
+/main.py
+/test_audio.py
+/tryCamera.py
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Binaries from External Sort testing
+*.bin
+
+# Other common ignores
+.DS_Store
