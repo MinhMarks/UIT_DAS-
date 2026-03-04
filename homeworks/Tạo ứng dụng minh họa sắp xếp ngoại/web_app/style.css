@@ -161,12 +161,17 @@ input[type="number"]:focus {
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
+    box-shadow: none !important;
 }
 
 .btn.primary {
@@ -191,6 +196,17 @@ input[type="number"]:focus {
     transform: translateY(-2px);
 }
 
+.btn.warning {
+    background-color: var(--warning-color);
+    color: #000;
+}
+
+.btn.warning:hover:not(:disabled) {
+    background-color: #e3b044;
+    box-shadow: var(--glow-comparing);
+    transform: translateY(-2px);
+}
+
 .btn.danger {
     background-color: transparent;
     border: 1px solid var(--danger-color);
@@ -200,6 +216,12 @@ input[type="number"]:focus {
 .btn.danger:hover:not(:disabled) {
     background-color: var(--danger-color);
     color: #fff;
+}
+
+/* Playback Controls Container */
+.playback-controls {
+    display: flex;
+    gap: 10px;
 }
 
 /* Log Panel */
@@ -241,6 +263,69 @@ input[type="number"]:focus {
     transition: width 0.3s ease;
     border-radius: 4px;
     box-shadow: 0 0 10px rgba(88, 166, 255, 0.6);
+}
+
+/* Terminal Log Window */
+.terminal-window {
+    background-color: #0d1117;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 180px;
+    margin-top: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.terminal-header {
+    background-color: #161b22;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+}
+
+.terminal-header::before {
+    content: '🔴 🟡 🟢';
+    margin-right: 10px;
+    letter-spacing: 2px;
+    font-size: 0.7rem;
+}
+
+.terminal-content {
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    scroll-behavior: smooth;
+}
+
+.term-line {
+    color: #3fb950;
+    margin-bottom: 4px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    text-shadow: 0 0 2px rgba(63, 185, 80, 0.4);
+}
+
+.term-line.info {
+    color: #58a6ff;
+    text-shadow: 0 0 2px rgba(88, 166, 255, 0.4);
+}
+
+.term-line.warn {
+    color: #d29922;
+    text-shadow: 0 0 2px rgba(210, 153, 34, 0.4);
+}
+
+.term-line.error {
+    color: #f85149;
+    text-shadow: 0 0 2px rgba(248, 81, 73, 0.4);
 }
 
 /* Visualization Zones */

@@ -6,8 +6,11 @@ const fileInput = document.getElementById('fileInput');
 
 const btnGenerate = document.getElementById('btnGenerate');
 const btnSort = document.getElementById('btnSort');
+const btnPause = document.getElementById('btnPause');
+const btnStep = document.getElementById('btnStep');
 const btnReset = document.getElementById('btnReset');
 const statusText = document.getElementById('statusText');
+const terminalContent = document.getElementById('terminalContent');
 
 const inputContainer = document.getElementById('inputContainer');
 const ramContainer = document.getElementById('ramContainer');
@@ -24,18 +27,75 @@ let rawData = [];
 let chunkCount = 0;
 let tempArrays = [];
 let isSorting = false;
+let isPaused = false;
+let stepNext = false;
+
+// --- Web Audio API ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'blip') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'ding') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    } else if (type === 'chime') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.0);
+        osc.start(); osc.stop(audioCtx.currentTime + 1.0);
+    }
+}
 
 // --- Helper Functions ---
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+async function sleep(ms) {
+    if (!isSorting) return; // Immediate exit if reset
+
+    // Normal delay
+    if (!isPaused) {
+        await new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // If paused, hold until unpaused or stepped
+    while (isPaused && !stepNext && isSorting) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    if (stepNext) {
+        stepNext = false; // consume the step
+        isPaused = true; // Auto pause again if it was a step
+    }
 }
 
+function consoleLog(msg, type = '') {
+    const div = document.createElement('div');
+    div.className = `term-line ${type}`;
+    div.innerText = `> ${msg}`;
+    terminalContent.appendChild(div);
+    terminalContent.scrollTop = terminalContent.scrollHeight;
+}
+
+function updateStatus(text, logType = 'info') {
+    statusText.innerText = text;
+    consoleLog(text, logType);
+}
 function getDelay() {
     return parseInt(elAnimSpeed.value) || 500;
-}
-
-function updateStatus(text) {
-    statusText.innerText = text;
 }
 
 function createBlock(value, customClass = '') {
@@ -142,16 +202,43 @@ btnReset.addEventListener('click', () => {
 
 
 // --- The Core Visualized Algorithm ---
+btnPause.addEventListener('click', () => {
+    if (!isSorting) return;
+    isPaused = !isPaused;
+    if (isPaused) {
+        btnPause.innerText = '▶ Tiếp tục';
+        btnPause.className = 'btn success';
+        btnStep.disabled = false;
+        consoleLog("SYSTEM PAUSED. Press 'Step' to advance 1 animation frame.", "warn");
+    } else {
+        btnPause.innerText = '⏸ Tạm Dừng';
+        btnPause.className = 'btn warning';
+        btnStep.disabled = true;
+        consoleLog("SYSTEM RESUMED.");
+    }
+});
+
+btnStep.addEventListener('click', () => {
+    if (!isSorting || !isPaused) return;
+    stepNext = true;
+});
+
 btnSort.addEventListener('click', async () => {
     if (isSorting) return;
     if (rawData.length === 0) return;
 
     btnGenerate.disabled = true;
     btnSort.disabled = true;
+    btnPause.disabled = false;
     btnReset.disabled = true;
     elNumElements.disabled = true;
     elChunkSize.disabled = true;
     isSorting = true;
+    isPaused = false;
+    stepNext = false;
+
+    terminalContent.innerHTML = '';
+    consoleLog("INITIATING EXTERNAL SORT MIN-HEAP ENGINE...");
 
     const chunkSize = parseInt(elChunkSize.value);
     let totalElements = rawData.length;
@@ -186,10 +273,12 @@ btnSort.addEventListener('click', async () => {
             currentChunkNodes.push(ramNode);
 
             ramBadge.innerText = `${currentChunkNodes.length} / ${chunkSize}`;
+            playSound('blip');
+            consoleLog(`[RAM IN] Loaded ${val} from Disk`);
             await sleep(getDelay() / 2);
         }
 
-        updateStatus(`Sắp xếp Khối ${currentChunkId + 1} trong RAM (Timsort/Quicksort)...`);
+        updateStatus(`Sắp xếp Khối ${currentChunkId + 1} trong RAM...`);
         await sleep(getDelay());
 
         // Sort Data in RAM
@@ -272,6 +361,8 @@ btnSort.addEventListener('click', async () => {
             ramBadge.innerText = `${ramContainer.children.length} / K=${tempArrays.length}`;
 
             heapInRam.push({ val: val, chunkId: i, domNode: ramNode });
+            playSound('blip');
+            consoleLog(`[HEAP INIT] Loaded ${val} from chunk_${i}.bin`);
             await sleep(getDelay() / 2);
         }
     }
@@ -307,7 +398,8 @@ btnSort.addEventListener('click', async () => {
             }
         });
 
-        updateStatus(`Phần tử nhỏ nhất là: ${minItem.val}. Đẩy ra Đĩa Kết Quả...`);
+        playSound('ding');
+        updateStatus(`Phần tử nhỏ nhất: ${minItem.val}. Đẩy ra Đĩa Kết Quả...`, 'warn');
         await sleep(getDelay());
 
         // Remove from RAM DOM

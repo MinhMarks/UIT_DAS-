@@ -38,11 +38,14 @@
                 <div class="control-group" style="flex-direction: row; align-items: center;">
                     <label for="numElements" style="margin-bottom: 0;">Hoặc sinh file mẫu có độ dài (N):</label>
                     <input type="number" id="numElements" value="15" min="5" max="200" style="width: 80px;">
-                    <button id="btnGenerate" class="btn primary">Tạo & Tải Về (sample.bin)</button>
+                    <button id="btnGenerate" class="btn primary" title="Sinh dữ liệu mẫu">Tạo & Tải Về Mẫu</button>
                 </div>
-                <div class="button-group">
-                    <button id="btnSort" class="btn success" disabled>BẮT ĐẦU SẮP XẾP</button>
-                    <button id="btnReset" class="btn danger">Reset UI</button>
+                <!-- Playback Controls -->
+                <div class="playback-controls">
+                    <button id="btnSort" class="btn success" disabled>▶ BẮT ĐẦU</button>
+                    <button id="btnPause" class="btn warning" disabled>⏸ Tạm Dừng</button>
+                    <button id="btnStep" class="btn primary" disabled>⏭ Bước Kế</button>
+                    <button id="btnReset" class="btn danger" style="margin-left:15px;">⟲ Reset</button>
                 </div>
             </div>
         </section>
@@ -52,8 +55,17 @@
                 <h3>Trạng thái: <span id="statusText">Đang chờ tạo dữ liệu...</span></h3>
                 <span id="progressText" class="progress-text">0%</span>
             </div>
-            <div class="progress-container">
+            <div class="progress-container" style="margin-bottom: 15px;">
                 <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <!-- Terminal Log Window -->
+            <div class="terminal-window" id="terminalWindow">
+                <div class="terminal-header">
+                    <span>Algorithm Trace Output</span>
+                </div>
+                <div class="terminal-content" id="terminalContent">
+                    <div class="term-line">> System Ready. Waiting for input...</div>
+                </div>
             </div>
         </section>
 
