@@ -21,26 +21,35 @@
 \maketitle
 
 \begin{abstract}
-Tài liệu này cung cấp hướng dẫn chi tiết về cách cài đặt, vận hành và phân tích quá trình hoạt động của ứng dụng tương tác đa phương tiện minh họa giải thuật Sắp xếp Ngoại (External Sort). Ứng dụng được thiết kế đặc trưng chạy trực tiếp trên nền tảng trình duyệt Web (Client-side Rendering) nhằm giúp người dùng trực quan hóa cách hệ thống máy tính có thể sắp xếp một lượng dữ liệu khổng lồ vượt quá giới hạn thể tích của bộ nhớ trong (RAM). Thông qua các khối đồ họa di chuyển và hiệu ứng nổi bật, thuật toán phân mảnh và trộn K-đường (K-Way Merge Sort) trở nên dễ hiểu hơn bao giờ hết.
+Tài liệu này cung cấp hướng dẫn cài đặt và sử dụng Ứng dụng Web minh họa giải thuật Sắp xếp Ngoại (External Sort). Ứng dụng chạy trực tiếp trên trình duyệt, mô phỏng quá trình phân mảnh và trộn K-đường (K-Way Merge Sort) để xử lý lượng dữ liệu vượt giới hạn bộ nhớ (RAM).
 \end{abstract}
 
-\section{Giới thiệu chung về kiến trúc ứng dụng Web}
+\section{Yêu cầu Hệ thống}
+\begin{itemize}
+    \item Trình duyệt web hiện đại hỗ trợ HTML5/ES6 (Google Chrome, Microsoft Edge, Safari, Firefox).
+    \item Không yêu cầu cài đặt phần mềm bên thứ ba hay môi trường lập trình (như Python, Node.js).
+\end{itemize}
 
-Ứng dụng minh họa Sắp xếp Ngoại được phát triển thành một Ứng dụng Web Đơn trang (Single Page Application) sử dụng 100\% công nghệ cốt lõi bao gồm HTML5, CSS3 và JavaScript ES6. Lợi thế tuyệt đối của kiến trúc này là khả năng khởi chạy độc lập ngay lập tức trên mọi trình duyệt hiện đại (Chrome, Edge, Firefox) mà không trói buộc người dùng vào việc cấu hình biến môi trường hay cài đặt ngôn ngữ lập trình hậu đài. Mục tiêu cốt lõi của phần mềm là hiện thực hóa trực quan thuật toán lập lịch thao tác trên bộ nhớ thứ cấp. Để theo dõi quá trình học thuật, giao diện được chia thành bốn phân vùng rõ rệt phản chiếu kiến trúc phần cứng thực thụ: một kho lưu trữ khởi nguyên (Input Disk), một bộ nhớ tạm thời đầy chật hẹp (RAM), các tệp trung gian nương tựa nằm rải rác (Temp Chunks) và bến đỗ thành phẩm cuối cùng (Output Disk). Sự dịch chuyển qua lại giữa các khu vực này được điều biến nhịp nhàng qua cú pháp bất đồng bộ (Async/Await).
+\section{Hướng dẫn Sử dụng}
+\begin{enumerate}
+    \item \textbf{Khởi chạy ứng dụng:} Mở tệp \texttt{web\_app/index.html} bằng trình duyệt web.
+    \item \textbf{Chuẩn bị Dữ liệu:}
+          \begin{itemize}
+              \item Tại mục "Hoặc sinh file mẫu", nhập \textbf{Số phần tử (N)} và nhấn \textbf{Tạo \& Tải Về Mẫu}. 
+              \item Hệ thống sẽ tự động tạo ra một tệp nhị phân \texttt{sample\_N.bin} (mỗi phần tử định dạng Float64 8-bytes).
+          \end{itemize}
+    \item \textbf{Nạp Dữ liệu:} Nhấn nút chọn tệp và tải lên tệp \texttt{.bin} vừa tạo.
+    \item \textbf{Cấu hình Bộ nhớ:} Tại trường \textbf{Kích thước RAM}, nhập giới hạn số phần tử tối đa mà bộ nhớ ảo có thể chứa (ví dụ: 5).
+    \item \textbf{Vận hành:} Nhấn nút \textbf{Bắt đầu} để quan sát tiến trình. Người dùng sử dụng các nút \textbf{Tạm Dừng / Bước Kế} nhằm điều khiển tốc độ mô phỏng theo từng lượt thao tác.
+\end{enumerate}
 
-\section{Thao tác vận hành và Quan sát}
+\section{Diễn giải Luồng Thuật toán}
+Nhờ vào chức năng giả lập, người dùng có thể trực tiếp quan sát thuật toán được thi hành theo hai phân đoạn chính:
 
-Cách thức vận hành và thao tác của ứng dụng lấy người dùng làm trọng tâm, bắt đầu bằng việc thiết lập không gian thử nghiệm. Để ứng dụng bắt đầu tương tác, người sử dụng cần khởi chạy trực tiếp tệp `index.html` trong thư mục `web_app` trên trình duyệt máy tính. Hệ thống đáp ứng ngặt nghèo yêu cầu thao tác đĩa thực tế bằng cách sử dụng File API của trình duyệt. Tại bảng điều khiển, người dùng có thể tự tạo cho mình một tệp dữ liệu mẫu mang định dạng nhị phân (`.bin`) chứa trọn vẹn các số thực 8 bytes (Float64) bằng cách nhấp vào nút "Tạo \& Tải Về".
+\subsection{Giai đoạn 1: Phân mảnh dữ liệu (Split \& Local Sort)}
+Thuật toán chia tệp nhị phân gốc thành các khối (chunk) có biểu đồ kích thước bằng với bộ nhớ RAM. Lần lượt từng khối được đọc vào RAM (các khối được highlight viền xanh), sắp xếp cục bộ tại RAM, và xuất ra hệ thống tập tin tạm dưới dạng \texttt{chunk\_i.bin}. 
 
-Khi đã có tệp nhị phân trong tay, người dùng thông qua trường (1) để "Chọn Nguồn Dữ Liệu Nhị Phân", hệ thống lập tức trích xuất khối ArrayBuffer, đọc dạng chuỗi số thực và nạp lên giao diện. Kết hợp với việc thiết lập sức chứa của bộ nhớ RAM (Chunk Size), trải nghiệm đã thực sự phỏng đoán chuẩn xác kịch bản của việc giới hạn bộ nhớ vật lý.
-
-Đỉnh cao của sự minh hoạ diễn ra khi người dùng kích hoạt lệnh BẮT ĐẦU SẮP XẾP. Tại pha hành động đầu tiên—Giai đoạn Phân mảnh, thuật toán lần lượt bốc chính xác số phần tử bằng với năng lực tối đa của Chunk Size từ đĩa nguồn, trượt chúng mượt mà vào vòng sáng của không gian RAM. Lúc này, hiệu ứng sáng viền xuất hiện, khẳng định dữ liệu đang được tái cấu trúc ngay trong lõi. Từng đợt sóng số liệu được cuộn lại và ném xuống khu vực Tệp tạm, để lại vùng RAM trống rỗng khát khao đón chờ lượt phân mảnh tiếp theo. Việc chia nhỏ luồng đi không chỉ chống tràn bộ nhớ mà còn giảm tải độ phức tạp thao tác thời gian thực.
-
-
-Xuyên suốt vào Giai đoạn Trộn (K-Way Merge), ứng dụng trình diễn cấu trúc Min-Heap một cách điệu nghệ. Bộ nhớ RAM lúc này chiêu mộ một và chỉ một ứng viên ưu tú nhất từ mỗi tệp tạm đang xếp hàng. Những ứng viên này sẽ được khoác lên vòng sáng vàng cảnh báo trạng thái đang bị soi xét kỹ lưỡng (Comparing). Thực thể mang giá trị hèn mọn nhất sẽ bị đẩy văng xuống rổ thành phẩm (Output). Ngay tức thời, một tân binh từ đội ngũ tệp tạm của nó sẽ được triệu hồi bổ sung vào khoảng trống RAM vừa để lại. Cỗ máy so sánh cứ thế nghiền nát khoảng cách, rút cạn kiệt đáy hồ tệp tạm để dệt nên một dải phân cách số liệu bóng loáng. Kết thúc chu trình, toàn bộ mảng đã hoà quyện này một lần nữa được nén chặt thành chuẩn ArrayBuffer Float64 nguyên khối và tự động xuất ra không gian đĩa từ dưới hình hài tệp nhị phân `sorted\_output.bin`. Thao tác trả kết quả bằng File I/O này chứng minh toàn diện và dứt điểm chuỗi yêu cầu thao tác ngoại vi.
-
-\section{Kết luận hiệu năng và ứng dụng thực tiễn}
-
-Nhờ vào việc mô phỏng quá trình này trên nền tảng web sống động, sinh viên và những người nghiên cứu chuyên sâu về cấu trúc dữ liệu có được một mô hình thu nhỏ vững chãi để đào sâu vào bài toán đánh đổi giữa năng lực vi giải và rào cản băng thông đĩa từ. Hoạt ảnh của từng số thực lơ lửng lao qua các container là minh chứng hùng hồn cho trí tuệ nhân loại vào thập niên hoàng kim khi giải quyết vấn nạn tràn mảng bằng kỹ nghệ xé nhỏ - hợp nhất. Công cụ tuy nhỏ gọn nhạy bén nhưng hội tụ đầy đủ tinh hoa phương án ứng phó, cung cấp góc nhìn trải nghiệm đa chiều vô cùng độc đáo.
+\subsection{Giai đoạn 2: Trộn K-đường (K-Way Merge)}
+Bộ nhớ RAM thực hiện khởi tạo cấu trúc Min-Heap bằng cách nạp 1 phần tử nhỏ nhất từ mỗi tệp tạm. Thuật toán tiến hành tìm giá trị nhỏ nhất trong thể tích RAM hiện hành (highlight vàng vòng lặp so sánh). Số nhỏ nhất được chuyển xuống mảng kết quả (Output Disk), sau đó RAM lập tức kéo phần tử tiếp theo từ chính tệp tạm tương ứng vào để lấp đầy ô trống. Tiến trình lặp lại cho đến khi toàn bộ số cạn kiệt, cho ra một tệp nhị phân kết xuất hoàn chỉnh.
 
 \end{document}
