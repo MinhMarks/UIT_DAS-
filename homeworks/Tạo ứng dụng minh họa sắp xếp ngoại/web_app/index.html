@@ -48,7 +48,13 @@
         </section>
 
         <section class="log-panel glass-panel">
-            <h3>Trạng thái: <span id="statusText">Đang chờ tạo dữ liệu...</span></h3>
+            <div class="log-header">
+                <h3>Trạng thái: <span id="statusText">Đang chờ tạo dữ liệu...</span></h3>
+                <span id="progressText" class="progress-text">0%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
         </section>
 
         <main class="visualization-area">

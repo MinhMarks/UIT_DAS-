@@ -16,6 +16,9 @@ const outputContainer = document.getElementById('outputContainer');
 const ramBadge = document.getElementById('ramBage');
 const outputBadge = document.getElementById('outputBadge');
 
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+
 // --- State ---
 let rawData = [];
 let chunkCount = 0;
@@ -40,6 +43,12 @@ function createBlock(value, customClass = '') {
     div.className = `number-block ${customClass}`;
     div.innerText = value;
     return div;
+}
+
+function updateProgress(percent) {
+    const p = Math.min(Math.max(percent, 0), 100);
+    progressBar.style.width = `${p}%`;
+    progressText.innerText = `${p.toFixed(0)}%`;
 }
 
 // Generate Random Data
@@ -110,6 +119,7 @@ fileInput.addEventListener('change', (e) => {
         ramBadge.innerText = `0 / ${elChunkSize.value}`;
         outputBadge.innerText = `Hoàn thành: 0`;
         updateStatus(`Đã tải lên tệp: ${file.name} (${rawData.length} số thực). Sẵn sàng bắt đầu!`);
+        updateProgress(0);
         btnSort.disabled = false;
     };
     reader.readAsArrayBuffer(file);
@@ -146,6 +156,7 @@ btnSort.addEventListener('click', async () => {
     const chunkSize = parseInt(elChunkSize.value);
     let totalElements = rawData.length;
     let elementsProcessed = 0;
+    updateProgress(0);
 
     // --- PHASE 1: SPLIT AND LOCAL SORT ---
     updateStatus("GIAI ĐOẠN 1: Đọc tuần tự, phân mảnh và sắp xếp cục bộ trong RAM...");
@@ -223,6 +234,10 @@ btnSort.addEventListener('click', async () => {
         });
 
         currentChunkId++;
+        elementsProcessed += currentChunkVals.length;
+        let p1Progress = (elementsProcessed / totalElements) * 50; // Phase 1 is 50%
+        updateProgress(p1Progress);
+
         await sleep(getDelay());
     }
 
@@ -303,6 +318,9 @@ btnSort.addEventListener('click', async () => {
         outputContainer.appendChild(createBlock(minItem.val, 'sorted'));
         mergedCount++;
         outputBadge.innerText = `Hoàn thành: ${mergedCount} / ${totalElements}`;
+
+        let p2Progress = 50 + ((mergedCount / totalElements) * 50);
+        updateProgress(p2Progress);
 
         await sleep(getDelay() / 2);
 
