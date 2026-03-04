@@ -4,7 +4,7 @@
     --border-color: rgba(48, 54, 61, 0.8);
     --text-main: #c9d1d9;
     --text-muted: #8b949e;
-    
+
     --primary-color: #58a6ff;
     --success-color: #238636;
     --danger-color: #da3633;
@@ -12,7 +12,7 @@
 
     --block-bg: #21262d;
     --block-border: #30363d;
-    
+
     --glow-primary: 0 0 15px rgba(88, 166, 255, 0.4);
     --glow-success: 0 0 15px rgba(35, 134, 54, 0.6);
     --glow-comparing: 0 0 15px rgba(210, 153, 34, 0.8);
@@ -30,7 +30,7 @@ body {
     color: var(--text-main);
     min-height: 100vh;
     padding: 20px;
-    background-image: 
+    background-image:
         radial-gradient(circle at 10% 20%, rgba(88, 166, 255, 0.05) 0%, transparent 40%),
         radial-gradient(circle at 90% 80%, rgba(35, 134, 54, 0.05) 0%, transparent 40%);
 }
@@ -54,6 +54,7 @@ h1 {
 .highlight-text {
     background: linear-gradient(90deg, #58a6ff, #bc8cff);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -74,10 +75,17 @@ header p {
 /* Controls */
 .controls {
     display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.controls-row {
+    display: flex;
     flex-wrap: wrap;
     gap: 20px;
     align-items: flex-end;
     justify-content: space-between;
+    width: 100%;
 }
 
 .control-group {
@@ -135,6 +143,7 @@ input[type="number"]:focus {
     background-color: var(--primary-color);
     color: #000;
 }
+
 .btn.primary:hover:not(:disabled) {
     background-color: #79c0ff;
     box-shadow: var(--glow-primary);
@@ -145,6 +154,7 @@ input[type="number"]:focus {
     background-color: var(--success-color);
     color: #fff;
 }
+
 .btn.success:hover:not(:disabled) {
     background-color: #2ea043;
     box-shadow: var(--glow-success);
@@ -156,6 +166,7 @@ input[type="number"]:focus {
     border: 1px solid var(--danger-color);
     color: var(--danger-color);
 }
+
 .btn.danger:hover:not(:disabled) {
     background-color: var(--danger-color);
     color: #fff;
@@ -221,7 +232,8 @@ input[type="number"]:focus {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    min-height: 55px; /* Enough for 1 row of blocks */
+    min-height: 55px;
+    /* Enough for 1 row of blocks */
     align-items: center;
 }
 
@@ -232,7 +244,7 @@ input[type="number"]:focus {
 }
 
 .temp-file-column {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px;
@@ -310,5 +322,5 @@ input[type="number"]:focus {
     opacity: 0.8;
     z-index: 100;
     pointer-events: none;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5), var(--glow-primary);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), var(--glow-primary);
 }

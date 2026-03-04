@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="app-container">
         <header>
@@ -15,22 +17,33 @@
         </header>
 
         <section class="controls glass-panel">
-            <div class="control-group">
-                <label for="numElements">Số lượng phần tử (N):</label>
-                <input type="number" id="numElements" value="15" min="5" max="100">
+            <div class="controls-row">
+                <div class="control-group">
+                    <label for="fileInput">1. Chọn Nguồn Dữ Liệu Nhị Phân (.bin):</label>
+                    <input type="file" id="fileInput" accept=".bin"
+                        style="color: #fff; background: transparent; border: 1px dashed var(--border-color); cursor: pointer;">
+                </div>
+                <div class="control-group">
+                    <label for="chunkSize">2. Kích thước RAM (Chunk Size):</label>
+                    <input type="number" id="chunkSize" value="5" min="2" max="50">
+                </div>
+                <div class="control-group">
+                    <label for="animSpeed">3. Tốc độ (ms):</label>
+                    <input type="number" id="animSpeed" value="800" min="100" max="2000" step="100">
+                </div>
             </div>
-            <div class="control-group">
-                <label for="chunkSize">Kích thước RAM (Chunk Size):</label>
-                <input type="number" id="chunkSize" value="5" min="2" max="20">
-            </div>
-            <div class="control-group">
-                <label for="animSpeed">Tốc độ (ms):</label>
-                <input type="number" id="animSpeed" value="800" min="100" max="2000" step="100">
-            </div>
-            <div class="button-group">
-                <button id="btnGenerate" class="btn primary">Sinh Dữ Liệu Random</button>
-                <button id="btnSort" class="btn success" disabled>Bắt đầu Sắp Xếp</button>
-                <button id="btnReset" class="btn danger">Reset</button>
+
+            <div class="controls-row"
+                style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <div class="control-group" style="flex-direction: row; align-items: center;">
+                    <label for="numElements" style="margin-bottom: 0;">Hoặc sinh file mẫu có độ dài (N):</label>
+                    <input type="number" id="numElements" value="15" min="5" max="200" style="width: 80px;">
+                    <button id="btnGenerate" class="btn primary">Tạo & Tải Về (sample.bin)</button>
+                </div>
+                <div class="button-group">
+                    <button id="btnSort" class="btn success" disabled>BẮT ĐẦU SẮP XẾP</button>
+                    <button id="btnReset" class="btn danger">Reset UI</button>
+                </div>
             </div>
         </section>
 
@@ -85,4 +98,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

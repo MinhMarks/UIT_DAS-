@@ -2,6 +2,7 @@
 const elNumElements = document.getElementById('numElements');
 const elChunkSize = document.getElementById('chunkSize');
 const elAnimSpeed = document.getElementById('animSpeed');
+const fileInput = document.getElementById('fileInput');
 
 const btnGenerate = document.getElementById('btnGenerate');
 const btnSort = document.getElementById('btnSort');
@@ -51,24 +52,67 @@ btnGenerate.addEventListener('click', () => {
         return;
     }
 
-    inputContainer.innerHTML = '';
-    ramContainer.innerHTML = '';
-    tempFilesContainer.innerHTML = '';
-    outputContainer.innerHTML = '';
-    ramBadge.innerText = `0 / ${elChunkSize.value}`;
-    outputBadge.innerText = `Hoàn thành: 0`;
-
-    rawData = [];
+    const float64Array = new Float64Array(count);
     for (let i = 0; i < count; i++) {
         // Gen random double-like number with 1 decimal
-        const val = (Math.random() * 200 - 100).toFixed(1);
-        rawData.push(parseFloat(val));
-        inputContainer.appendChild(createBlock(val));
+        float64Array[i] = parseFloat((Math.random() * 200 - 100).toFixed(1));
     }
 
-    tempArrays = [];
-    updateStatus(`Đã tạo ${count} phần tử. Nhấn "Bắt đầu Sắp Xếp" để chạy.`);
-    btnSort.disabled = false;
+    // Create File Blob & Download
+    const blob = new Blob([float64Array.buffer], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sample_N${count}.bin`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    updateStatus(`Đã tạo và tải xuống tệp sample_N${count}.bin. Hãy TẢI LÊN tệp này ở mục (1) để bắt đầu.`);
+});
+
+// Upload Binary File 
+fileInput.addEventListener('change', (e) => {
+    if (isSorting) return;
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (evt) {
+        const arrayBuffer = evt.target.result;
+        if (arrayBuffer.byteLength % 8 !== 0) {
+            alert('File không hợp lệ. Kích thước file nhị phân (double) phải chia hết cho 8 bytes.');
+            fileInput.value = "";
+            return;
+        }
+
+        const floatArray = new Float64Array(arrayBuffer);
+
+        inputContainer.innerHTML = '';
+        ramContainer.innerHTML = '';
+        tempFilesContainer.innerHTML = '';
+        outputContainer.innerHTML = '';
+        rawData = [];
+
+        // Max visual limit
+        const displayLimit = Math.min(floatArray.length, 300);
+
+        for (let i = 0; i < displayLimit; i++) {
+            let val = floatArray[i];
+            rawData.push(val);
+            inputContainer.appendChild(createBlock(val.toFixed(1)));
+        }
+
+        if (floatArray.length > 300) {
+            alert("File quá lớn. Ứng dụng web hiển thị minh họa giới hạn ở 300 phần tử đầu tiên.");
+        }
+
+        tempArrays = [];
+        ramBadge.innerText = `0 / ${elChunkSize.value}`;
+        outputBadge.innerText = `Hoàn thành: 0`;
+        updateStatus(`Đã tải lên tệp: ${file.name} (${rawData.length} số thực). Sẵn sàng bắt đầu!`);
+        btnSort.disabled = false;
+    };
+    reader.readAsArrayBuffer(file);
 });
 
 btnReset.addEventListener('click', () => {
@@ -81,8 +125,10 @@ btnReset.addEventListener('click', () => {
     tempFilesContainer.innerHTML = '';
     outputContainer.innerHTML = '';
     btnSort.disabled = true;
+    fileInput.value = "";
     updateStatus("Đã reset.");
 });
+
 
 
 // --- The Core Visualized Algorithm ---
@@ -285,7 +331,25 @@ btnSort.addEventListener('click', async () => {
         }
     }
 
-    updateStatus("✅ HOÀN THÀNH: Quá trình Sắp Xếp Ngoại đã kết thúc thành công!");
+    updateStatus("Chuẩn bị trích xuất và lưu mảng kết quả ra tệp nhị phân...");
+    await sleep(getDelay());
+
+    // Generate output.bin
+    const outNodes = outputContainer.querySelectorAll('.number-block');
+    const sortedArray = new Float64Array(outNodes.length);
+    for (let i = 0; i < outNodes.length; i++) {
+        sortedArray[i] = parseFloat(outNodes[i].innerText);
+    }
+
+    const blob = new Blob([sortedArray.buffer], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sorted_output.bin`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    updateStatus("✅ HOÀN TẤT: Sắp xếp kết thúc. Đã tự động lưu file kết quả (sorted_output.bin)!");
 
     // Unlock buttons
     btnGenerate.disabled = false;
@@ -293,5 +357,6 @@ btnSort.addEventListener('click', async () => {
     btnReset.disabled = false;
     elNumElements.disabled = false;
     elChunkSize.disabled = false;
+    fileInput.value = "";
     isSorting = false;
 });
