@@ -1,5 +1,7 @@
 # Đồ án: Minh họa Sắp xếp Ngoại (External Sort)
 
+**Mã nguồn Github:** [https://github.com/[username]/[repository]](https://github.com/[username]/[repository])
+
 Đây là bài tập mô phỏng quá trình **Sắp xếp ngoại (External Sort)** bằng thuật toán **Trộn K-Đường (K-Way Merge Sort)**. Yêu cầu đặc biệt của đồ án là kiểm soát chặt chẽ giới hạn bộ nhớ (RAM) và thao tác với tệp nhị phân trên đĩa từ (Disk I/O).
 
 ## 🚀 Tính năng Nổi bật (Phiên bản Vibecode Plus)
@@ -23,7 +25,4 @@ Cấu trúc thư mục đã được tổ chức lại để chuẩn hóa:
 2. Tại Box điều khiển, bấm **Tạo & Tải Về Mẫu**. Hệ thống sẽ tải về tệp tin nhị phân mẫu.
 3. Upload tệp nhị phân vừa tải.
 4. Điều chỉnh **năng lực của RAM (Chunk Size)** tại thanh công cụ (vd: 5).
-5. Bấm **Bắt đầu** và chiêm ngưỡng hệ thống xử lý bộ nhớ. Mở loa để trải nghiệm âm thanh.
-
-## 🛠 Tác giả
-Bài tập môn học DSA++ (Cấu trúc Dữ liệu và Giải thuật Máy tính Nâng cao).
+5. Bấm **Bắt đầu** và chiêm ngưỡng hệ thống xử lý bộ nhớ. Mở loa để tr
