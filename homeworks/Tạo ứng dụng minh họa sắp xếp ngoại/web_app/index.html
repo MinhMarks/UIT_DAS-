@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minh Khoạ Sắp Xếp Ngoại - DSA++</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Minh Họa <span class="highlight-text">Sắp Xếp Ngoại</span></h1>
+            <p>Ứng dụng mô phỏng trực quan thuật toán Trộn K-Đường (K-Way Merge Sort) phân mảnh đĩa từ.</p>
+        </header>
+
+        <section class="controls glass-panel">
+            <div class="control-group">
+                <label for="numElements">Số lượng phần tử (N):</label>
+                <input type="number" id="numElements" value="15" min="5" max="100">
+            </div>
+            <div class="control-group">
+                <label for="chunkSize">Kích thước RAM (Chunk Size):</label>
+                <input type="number" id="chunkSize" value="5" min="2" max="20">
+            </div>
+            <div class="control-group">
+                <label for="animSpeed">Tốc độ (ms):</label>
+                <input type="number" id="animSpeed" value="800" min="100" max="2000" step="100">
+            </div>
+            <div class="button-group">
+                <button id="btnGenerate" class="btn primary">Sinh Dữ Liệu Random</button>
+                <button id="btnSort" class="btn success" disabled>Bắt đầu Sắp Xếp</button>
+                <button id="btnReset" class="btn danger">Reset</button>
+            </div>
+        </section>
+
+        <section class="log-panel glass-panel">
+            <h3>Trạng thái: <span id="statusText">Đang chờ tạo dữ liệu...</span></h3>
+        </section>
+
+        <main class="visualization-area">
+            <!-- Ổ ĐĨA GỐC (INPUT DISK) -->
+            <div class="zone input-zone">
+                <div class="zone-header">
+                    <h2>Đĩa Từ Đầu Vào (Input Disk)</h2>
+                </div>
+                <div class="blocks-container" id="inputContainer">
+                    <!-- Numbers will be injected here -->
+                </div>
+            </div>
+
+            <!-- BỘ NHỚ TRONG (RAM) -->
+            <div class="zone ram-zone">
+                <div class="zone-header">
+                    <h2>Bộ Nhớ Trong (RAM) - Đang xử lý</h2>
+                    <span class="badge" id="ramBage">0 / 0</span>
+                </div>
+                <div class="blocks-container" id="ramContainer">
+                    <!-- Workspace -->
+                </div>
+            </div>
+
+            <!-- CÁC TỆP TẠM (TEMP CHUNKS) -->
+            <div class="zone temp-zone">
+                <div class="zone-header">
+                    <h2>Các Tệp Tạm (Temp Chunks on Disk)</h2>
+                </div>
+                <div class="temp-files-wrapper" id="tempFilesContainer">
+                    <!-- Files generated dynamically -->
+                </div>
+            </div>
+
+            <!-- Ổ ĐĨA KẾT QUẢ (OUTPUT DISK) -->
+            <div class="zone output-zone">
+                <div class="zone-header">
+                    <h2>Đĩa Từ Đầu Ra (Output Disk)</h2>
+                    <span class="badge success-badge" id="outputBadge">Hoàn thành: 0</span>
+                </div>
+                <div class="blocks-container" id="outputContainer">
+                    <!-- Merged Elements -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

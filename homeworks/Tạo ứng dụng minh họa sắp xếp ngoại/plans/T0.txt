@@ -1,0 +1,3 @@
+Hiện tại giao diện đang quá khó để theo dõi quá trình sắp xếp. Cần phải làm cho nó dễ hiểu hơn.
+
+Tôi nghĩ bạn hãy để lên giao diện web. Mô phỏng trực quan các bước, tải block nào lên so sánh số nào, ghi vào block nào, ... Như vậy thì mới trục quan hóa quá trình chứ. 
