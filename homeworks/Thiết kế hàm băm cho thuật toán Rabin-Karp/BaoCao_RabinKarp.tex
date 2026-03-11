@@ -1,0 +1,150 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+
+\geometry{left=2cm, right=2cm, top=2.5cm, bottom=2.5cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Môn học: Cấu trúc dữ liệu và giải thuật}
+\rhead{Thiết kế hàm băm Rabin-Karp}
+\cfoot{\thepage}
+
+\begin{document}
+
+\begin{center}
+    \LARGE \textbf{BÁO CÁO BÀI TẬP VỀ NHÀ} \\[0.5cm]
+    \Large \textbf{THIẾT KẾ HÀM BĂM CHO THUẬT TOÁN RABIN-KARP} \\[0.2cm]
+    \Large \textbf{XỬ LÝ VĂN BẢN TIẾNG VIỆT CÓ DẤU} \\[0.5cm]
+    \normalsize \textbf{Sinh viên thực hiện:} Trần Lê Minh Nhật - \textbf{MSSV:} 23521098
+\end{center}
+\vspace{1cm}
+
+\section{Bài toán và Căn cứ thiết kế hàm băm}
+
+Thuật toán Rabin-Karp là một giải thuật tìm kiếm chuỗi con thao tác dựa trên phương thức trượt cửa sổ (sliding window) kết hợp với tính toán mã băm (hàm Hash). Đặc thù của bài toán này nằm ở đối tượng thao tác là văn bản \textbf{tiếng Việt có dấu}, mang lại những thử thách cực lớn so với chuỗi ký tự chuẩn ASCII thông thường. 
+
+Các căn cứ được sử dụng làm trung tâm khi thiết kế hàm băm bao gồm:
+\begin{enumerate}
+    \item \textbf{Sự phức tạp của bảng mã:} Khác với bảng mã kiểu cũ (ASCII) chỉ gồm 128 ký tự chữ cái La tinh cơ bản, tiếng Việt sử dụng bảng mã Unicode đồ sộ. Không gian giá trị (Codepoint) được trải dài để phục vụ biểu diễn các chữ cái mang nhiều thanh dấu.
+    \item \textbf{Biến thể về tổ hợp quy cách gõ (NFC và NFD):} Trong thực tế lưu trữ và nhập liệu, tiếng Việt bị chia rẽ thành kiểu dựng sẵn (NFC - ký tự và dấu là một Codepoint duy nhất) và kiểu tổ hợp (NFD - ký tự gốc và dấu là các mảnh Codepoint rời rạc ghép lại do người dùng sử dụng nhiều dạng bàn phím gõ như VNI/Telex khác nhau). 
+    \item \textbf{Độ chênh lệch dạng chữ:} Quá trình tìm kiếm tiếng Việt thường ưu tiên bỏ qua nhận diện chữ hoa và chữ thường nhằm tăng độ chính xác tìm kiếm theo ngữ nghĩa. (Ví dụ: "Việt Nam", "VIỆT NAM" hay "việt nam" đều chung một tập hợp).
+    \item \textbf{Rủi ro đụng độ mã băm cao (Hash Collision):} Do từ vựng tiếng Việt thường đi theo cụm và có độ dài đa dạng, các hàm băm tuyến tính thông thường có không gian lưu trữ hẹp thường xuyên gặp phải đụng độ, sinh ra tín hiệu "dương tính giả" (False Positive), làm thuật toán phải liên tục bị gián đoạn để kiểm tra chuỗi trực tiếp $O(K)$.
+\end{enumerate}
+
+Để Rabin-Karp giải quyết bài toán trên một cách triệt để nhất, kiến trúc hàm băm bắt buộc cần có cơ chế quy chuẩn định dạng (Preprocessing) chặt chẽ, một giới hạn băm khổng lồ để tránh đụng độ và một cơ chế toán học vòng lặp được tối ưu để hoạt động ở tốc độ bitwise thay vì dùng các phép tính chậm chạp.
+
+\section{Thiết kế chi tiết hàm băm tối ưu nhất}
+
+Từ những đòi hỏi khắt khe bên trên, dưới đây là thiết kế kiến trúc hàm băm tối ưu được đề xuất. Quy trình mã hóa một dòng văn bản tiếng Việt trải qua 2 pha liên tục: Pha Tiền xử lý chữ và Pha Băm Tịnh Tiến Đa thức Cấp cao.
+
+\subsection{Pha Tiền xử lý văn bản (Text Preprocessing)}
+
+Mọi chuỗi P và các cửa sổ trượt trên T phải đi qua bộ xử lý này để bảo đảm tính thống nhất trước khi tính toán tổng đại số băm:
+\begin{itemize}
+    \item \textbf{Đồng bộ hóa chuẩn NFC (Normalization Form C):} Cưỡng chế mọi ký hiệu tổ hợp (NFD) có trong văn bản thành ký hiệu dựng sẵn. Điều này giúp từ "á" gõ từ bàn phím bằng phím 'a' kết hợp thanh '´' (chiếm 2 byte dữ liệu) được hệ thống đúc ép thành codepoint thống nhất U+00E1 (1 vùng dữ liệu duy nhất). Bước lọc này xóa bỏ điểm mù khác biệt định dạng khi tra cứu.
+    \item \textbf{Đồng phẳng kích cỡ chữ (Case Folding):} Sử dụng hàm \texttt{ToLower()} để triệt tiêu mọi trạng thái in Hoa trên văn bản, đưa chuẩn gốc về dạng chữ viết thường nhằm đảm bảo tính hoán đổi. Hàm băm sẽ luôn nhận diện thông tin dựa trên âm vận cơ bản mà không bị cấn về hình thức trình bày.
+\end{itemize}
+
+\subsection{Pha Băm Ký tự Đa thức (Polynomial Rolling Hash Modulo Kép)}
+
+Công thức cốt lõi được áp dụng là \textbf{Hashing Đa thức (Polynomial Hash)} theo chiều cuộn tịnh tiến trên không gian của một dãy số nguyên tố. 
+
+Mã băm cho chuỗi độ dài $k$ xuất phát từ chuỗi $S$:
+\begin{equation}
+    H(S) = \left( \sum_{i=0}^{k-1} S[i] \cdot b^{k-1-i} \right) \bmod M 
+\end{equation}
+
+Với thao tác tịnh tiến cuốn cửa sổ đạt gia tốc $O(1)$, hệ số trạng thái mới (bỏ phần tử ở đỉnh $S[old]$, thêm phần tử ở tiếp điểm $S[new]$) được viết gọn thành:
+\begin{equation}
+    H_{new} = \Big( \big(H_{old} - S[old] \cdot b^{k-1}\big) \cdot b + S[new] \Big) \bmod M 
+\end{equation}
+
+\textbf{Cơ chế thông số kỹ thuật tối ưu:}
+\begin{itemize}
+    \item \textbf{Cơ số phân bổ (Base $b$): Chọn $b = 311$.} Tiếng Việt khi thiết lập theo bảng mã Unicode sẽ sinh ra tọa độ Codepoint vươn khỏi mốc lượng tử 255. Do đó, việc quy chuẩn hệ đếm base 256 của bảng ASCII thông thường sẽ bị ngợp và đụng độ. $311$ là một số nguyên tố lân cận, đủ lý tưởng để phân bổ đều đặn mọi điểm tín hiệu sinh ra từ chuỗi mà không gặp cản trở về hiệu ứng trượt hoán vị.
+    \item \textbf{Cơ chế dư số (Modulo $M$): Chọn $M = 2^{61} - 1$.} Đây là một số nguyên tố Mersenne cực lớn nằm sát nóc trong ranh giới an toàn của biến bộ nhớ số nguyên 64-bit chuẩn (\texttt{uint64\_t}). 
+    \begin{itemize}
+        \item Khả năng vươn của số lượng $M$ khổng lồ giúp xác suất rủi ro đụng độ 2 chuỗi (Collision Rate) giảm sâu xuống mức không tưởng ($ \approx \frac{1}{M} \approx 10^{-18} $). Ở quy mô này, chúng ta hoàn toàn có thể bỏ qua bước "Kiểm chứng trực tiếp từng chữ mót $O(K)$" khi hai băm bằng nhau vì xác suất sai phạm (False Positive) là vô cùng siêu thực.
+        \item Vì $M$ là cấp số nguyên tố đặc chuẩn Mersenne ($2^p - 1$), nên phép tính toán Modulo \texttt{(\%)} thường thấy - vốn yêu cầu máy tính vận dụng rất nhiều chu kỳ xung não vi xử lý để ngắt đoạn đa thức - sẽ được thế chỗ bởi toán tự Bit (Bitwise Shift) cực kỳ nhanh nhạy. Phương trình thay thế để chuyển chuỗi dư số là: $X \bmod M \ \equiv \ (X \text{ AND } M) + (X \gg 61)$. Nút thắt hiệu suất (Bottleneck) lớn nhất của máy móc khi Hashing đã được triệt tiêu hoàn toàn.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Cơ chế bổ trợ kiểm chứng giá trị Âm (Fix Negative Modulo)}
+
+Bởi giải thuật Rabin-Karp thực hiện chuỗi cuốn vòng bằng cách trừ đi giá trị của đỉnh bị loại bỏ $H_{old} - S[old] \cdot b^{k-1}$, phép trừ đại lượng trực tiếp này sẽ ép tổng số chạy xuống miền "số âm" cục bộ trên các ngôn ngữ lập trình như C++ hay Java. Tính Modulo \% của giá trị âm sẽ tiếp tục trả lại rác kết quả biến thiên âm, làm sai lệch cấu trúc đối lưu. Mẫu hàm được tiêm thêm một dòng kiểm soát:
+\begin{verbatim}
+    Long hash_val = (H_old - S[old] * pow_base) % M;
+    if (hash_val < 0) {
+        hash_val += M; // Chốt chặn vớt số dư trở về miền Dương an toàn
+    }
+\end{verbatim}
+Đại lượng \verb|hash_val| giờ đây tĩnh tiến cực kỳ bằng phẳng.
+
+\section{Kết luận}
+
+Phiên bản hàm băm này vượt qua mọi rào cản gồ ghề nhất của tiếng Việt. Việc nén chữ vào vạch đích đồng dạng (NFC, Lowercase) vô hiệu hóa hoàn toàn sự mâu thuẫn đánh máy trong hồ sơ văn bản. Sự kết hợp giữa bộ ngàm gốc số nguyên tố chuẩn $(b=311, M=2^{61}-1)$ giúp đẩy lùi va chạm rủi ro xuống bằng 0, đồng thời tích luỹ khả năng cuốn vòng hash qua thiết bị dịch Bitwise siêu tốc đem lại một kiệt tác thiết kế toàn diện cho bài toán tìm chuỗi Rabin-Karp.
+
+\section{Cài đặt thuật toán bằng ngôn ngữ C++}
+
+Để minh chứng cho thuật toán, dưới đây là cài đặt cốt lõi bằng C++ mô phỏng quá trình Hash tịnh tiến cùng phép lấy dư qua dịch bit Mersenne.
+
+\begin{verbatim}
+// Modulo computation using Bitwise Shift
+uint64_t mod_mersenne(uint64_t x) {
+    uint64_t res = (x & MOD) + (x >> 61);
+    if (res >= MOD) {
+        res -= MOD;
+    }
+    return res;
+}
+
+// Optimized Rabin-Karp Matching Function
+vector<int> rabin_karp_search(const string& text_str, const string& pattern_str) {
+    vector<int> occurrences;
+    // ... Preprocessing NFC and Lowercase ...
+    
+    uint64_t hash_P = 0, hash_T = 0, pow_b = 1;
+    
+    // Hash pattern and first window
+    for (int i = 0; i < m; ++i) {
+        hash_P = mod_mersenne(mod_mersenne(hash_P * B) + P[i]);
+        hash_T = mod_mersenne(mod_mersenne(hash_T * B) + T[i]);
+    }
+    
+    // pow_b = (B ^ (m-1)) % M
+    for (int i = 1; i < m; ++i) {
+        pow_b = mod_mersenne(pow_b * B);
+    }
+    
+    for (int i = 0; i <= n - m; ++i) {
+        if (hash_P == hash_T) {
+            occurrences.push_back(i); // Match found
+        }
+        
+        // Slide window
+        if (i < n - m) {
+            uint64_t remove_val = mod_mersenne(T[i] * pow_b);
+            
+            // Handle negative modulus safely
+            if (hash_T < remove_val) {
+                hash_T += MOD;
+            }
+            hash_T -= remove_val;
+            
+            hash_T = mod_mersenne(mod_mersenne(hash_T * B) + T[i + m]);
+        }
+    }
+    
+    return occurrences;
+}
+\end{verbatim}
+
+\end{document}

@@ -1,0 +1,141 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% Page layout
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Môn học: DSA++}
+\lhead{Bài tập: Ứng dụng CTDL trong thực tế}
+\cfoot{\thepage}
+
+% Title Formatting
+\titleformat{\section}
+{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\title{\textbf{CẤU TRÚC DỮ LIỆU VÀ GIẢI THUẬT\\TRONG CÁC HỆ THỐNG THỰC TẾ}}
+\author{Học viên: [Tên Học Viên]}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Báo cáo này trình bày về các Cấu trúc dữ liệu (CTDL) và Giải thuật quan trọng được ứng dụng trong ba hệ thống nền tảng của công nghệ thông tin: Hệ điều hành (OS), Hệ quản trị cơ sở dữ liệu (DBMS) và Hệ thống thông tin địa lý (GIS). Mỗi phần sẽ phân tích chi tiết ba cấu trúc dữ liệu và ba giải thuật tiêu biểu, giải thích cơ chế hoạt động, vai trò và ví dụ minh họa cụ thể, nhằm làm rõ mối liên hệ mật thiết giữa lý thuyết thuật toán và các ứng dụng thực tiễn.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Hệ Điều Hành (Operating System - OS)}
+
+Hệ điều hành là phần mềm hệ thống quản lý tài nguyên phần cứng và phần mềm máy tính. Để đảm bảo hiệu năng và sự công bằng trong việc phân phối tài nguyên, OS sử dụng nhiều cấu trúc dữ liệu và giải thuật phức tạp.
+
+\subsection{Cấu trúc dữ liệu trong OS}
+
+\textbf{1. Khối Kiểm Soát Tiến Trình (Process Control Block - PCB)}
+
+Khối kiểm soát tiến trình (PCB) là một cấu trúc dữ liệu cốt lõi trong nhân của hệ điều hành, đóng vai trò như một "hồ sơ" lưu trữ toàn bộ thông tin về một tiến trình cụ thể. Khi một chương trình được nạp vào bộ nhớ để thực thi, hệ điều hành sẽ tạo ra một PCB tương ứng để quản lý nó. PCB chứa các trường thông tin quan trọng như: định danh tiến trình (PID), trạng thái hiện tại của tiến trình (đang chạy, sẵn sàng, hay đang chờ), bộ đếm chương trình (Program Counter) để biết lệnh tiếp theo cần thực thi, các thanh ghi CPU để khôi phục ngữ cảnh khi chuyển đổi tiến trình, và thông tin về bộ nhớ cũng như tài nguyên I/O đang nắm giữ. Nhờ có PCB, hệ điều hành có thể thực hiện cơ chế đa nhiệm (multitasking) bằng cách lưu và khôi phục trạng thái của các tiến trình một cách chính xác mà không làm mất dữ liệu.
+
+\textbf{2. Bảng Trang (Page Table)}
+
+Trong các hệ điều hành sử dụng cơ chế quản lý bộ nhớ ảo, Bảng trang là cấu trúc dữ liệu dùng để ánh xạ địa chỉ ảo (virtual address) mà tiến trình nhìn thấy sang địa chỉ vật lý (physical address) thực tế trên thanh RAM. Mỗi tiến trình thường có một bảng trang riêng biệt. Cấu trúc này cho phép hệ điều hành cung cấp cho mỗi tiến trình một không gian địa chỉ ảo liền mạch, ngay cả khi bộ nhớ vật lý bị phân mảnh rời rạc. Một ví dụ điển hình là cấu trúc bảng trang đa cấp (Multi-level Page Table) được sử dụng trong kiến trúc x86-64, giúp tiết kiệm bộ nhớ lưu trữ bảng trang khi không gian địa chỉ ảo rất lớn nhưng thực tế sử dụng lại thưa thớt. Khi CPU truy xuất một địa chỉ ảo, bộ quản lý bộ nhớ (MMU) sẽ tra cứu bảng trang để tìm khung trang vật lý tương ứng.
+
+\textbf{3. Hàng Đợi Sẵn Sàng (Ready Queue)}
+
+Hàng đợi sẵn sàng là một cấu trúc dữ liệu, thường được cài đặt dưới dạng danh sách liên kết (Linked List), dùng để chứa các tiến trình đang ở trạng thái "Sẵn sàng" (Ready). Đây là các tiến trình đã có đầy đủ tài nguyên cần thiết và chỉ còn chờ được CPU cấp quyền thực thi. Khi bộ nhớ chính có nhiều tiến trình, hệ điều hành cần một cơ chế để tổ chức chúng. Mỗi phần tử trong danh sách liên kết này thường là một con trỏ trỏ đến PCB của tiến trình tương ứng. Việc sử dụng danh sách liên kết cho phép hệ điều hành dễ dàng thêm các tiến trình mới vào hàng đợi hoặc chọn một tiến trình để đưa vào chạy mà không cần phải di chuyển các phần tử khác trong bộ nhớ, đảm bảo hiệu suất cao cho bộ lập lịch (scheduler).
+
+\subsection{Giải thuật trong OS}
+
+\textbf{1. Giải thuật Lập lịch Round Robin (RR)}
+
+Round Robin là một trong những giải thuật lập lịch CPU phổ biến và công bằng nhất, đặc biệt trong các hệ thống chia sẻ thời gian (time-sharing). Nguyên lý của giải thuật này là phân chia thời gian CPU thành các lát cắt nhỏ cố định gọi là "quantum" (ví dụ: 10ms - 100ms). Hệ điều hành sẽ lần lượt cấp CPU cho các tiến trình trong Hàng đợi sẵn sàng. Mỗi tiến trình được chạy trong một khoảng thời gian quantum; nếu chưa hoàn thành, nó sẽ bị ngừng lại và đưa xuống cuối hàng đợi để nhường chỗ cho tiến trình tiếp theo. Cơ chế này ngăn chặn tình trạng một tiến trình chiếm dụng CPU quá lâu, đảm bảo mọi tiến trình đều có cơ hội được phục vụ và hệ thống phản hồi nhanh với người dùng.
+
+\textbf{2. Giải thuật Thay thế trang "Ít được sử dụng nhất" (Least Recently Used - LRU)}
+
+Trong quản lý bộ nhớ ảo, khi bộ nhớ vật lý đã đầy và cần nạp thêm một trang mới từ đĩa vào, hệ điều hành phải chọn một trang hiện có để đẩy ra (swap out). Giải thuật LRU dựa trên quan sát thực tế rằng các trang đã lâu không được truy cập thì ít có khả năng được dùng lại trong tương lai gần. Do đó, LRU sẽ chọn trang mà khoảng thời gian từ lần truy cập cuối cùng đến hiện tại là dài nhất để thay thế. Để cài đặt LRU, hệ điều hành có thể sử dụng một ngăn xếp (stack) hoặc bộ đếm thời gian cho mỗi trang. Mặc dù chi phí cài đặt phần cứng khá cao để theo dõi chính xác thời điểm truy cập, nhưng LRU mang lại hiệu suất rất tốt và giảm thiểu lỗi trang (page fault) so với các giải thuật đơn giản như FIFO.
+
+\textbf{3. Giải thuật Banker (Banker's Algorithm)}
+
+Giải thuật Banker là một phương pháp kinh điển để tránh tắc nghẽn (deadlock avoidance) trong hệ điều hành, được đề xuất bởi Edsger Dijkstra. Tên gọi này xuất phát từ cách làm việc của một ngân hàng: không bao giờ cấp phát tiền mặt sao cho ngân hàng không còn khả năng đáp ứng nhu cầu của tất cả khách hàng. Trước khi hệ điều hành cấp phát tài nguyên cho một tiến trình, giải thuật Banker sẽ giả định cấp phát và kiểm tra xem hệ thống sau đó có rơi vào trạng thái "không an toàn" (unsafe state) hay không. Trạng thái an toàn là trạng thái mà hệ thống vẫn có thể cấp phát đủ tài nguyên cho ít nhất một tiến trình hoàn thành, sau đó thu hồi tài nguyên để cấp cho các tiến trình khác. Nếu việc cấp phát dẫn đến trạng thái không an toàn (nguy cơ deadlock), yêu cầu sẽ bị từ chối hoặc hoãn lại.
+
+\section{Hệ Quản Trị Cơ Sở Dữ Liệu (DBMS)}
+
+Hệ quản trị cơ sở dữ liệu (DBMS) là phần mềm cho phép lưu trữ, truy xuất và quản lý dữ liệu một cách hiệu quả. Do yêu cầu khắt khe về tốc độ truy vấn và tính toàn vẹn dữ liệu, DBMS áp dụng những cấu trúc và giải thuật rất đặc thù.
+
+\subsection{Cấu trúc dữ liệu trong DBMS}
+
+\textbf{1. Cây B+ (B+ Tree)}
+
+B+ Tree là cấu trúc dữ liệu tiêu chuẩn dùng để tạo chỉ mục (index) trong hầu hết các hệ quản trị CSDL quan hệ như MySQL, PostgreSQL hay Oracle. Khác với cây nhị phân thông thường, B+ Tree là cây tìm kiếm cân bằng đa nhánh, được tối ưu hóa cho các hệ thống lưu trữ trên đĩa từ. Tất cả các dữ liệu thực hoặc con trỏ đến dữ liệu đều được lưu trữ ở các nút lá (leaf nodes), và các nút lá này được liên kết với nhau thành một danh sách liên kết. Cấu trúc này mang lại hai lợi ích lớn: thứ nhất, chiều cao của cây rất thấp giúp giảm số lần đọc ổ đĩa (Disk I/O) khi tìm kiếm; thứ hai, việc liên kết các nút lá cho phép thực hiện các truy vấn phạm vi (range queries) cực kỳ nhanh chóng bằng cách duyệt tuần tự mà không cần quay lại các nút cha.
+
+\textbf{2. Bảng Băm (Hash Table)}
+
+Bảng băm là cấu trúc dữ liệu được sử dụng rộng rãi trong DBMS để thực hiện các phép truy vấn so khớp chính xác (equality search), ví dụ như `SELECT * FROM Users WHERE ID = 123`. Bảng băm sử dụng một hàm băm để biến đổi khóa tìm kiếm thành vị trí (index) trong một mảng buckets. Nhờ đó, thời gian tìm kiếm trung bình là O(1), nhanh hơn nhiều so với tìm kiếm trên cây. Ngoài ra, Bảng băm còn đóng vai trò quan trọng trong việc thực thi các phép nối bảng (Hash Join). Khi nối hai bảng lớn, DBMS có thể tạo bảng băm trên các dòng của bảng nhỏ hơn (build phase) và sau đó quét bảng lớn hơn (probe phase) để tìm các cặp khớp, giúp tăng tốc độ xử lý câu lệnh SQL phức tạp.
+
+\textbf{3. Nhật ký ghi trước (Write-Ahead Log - WAL)}
+
+Để đảm bảo tính bền vững (Durability) và nguyên tử (Atomicity) trong tập thuộc tính ACID, DBMS sử dụng cấu trúc dữ liệu Write-Ahead Log. Đây là một cấu trúc dạng danh sách tuần tự (log), ghi lại mọi thay đổi đối với cơ sở dữ liệu trước khi các thay đổi đó thực sự được ghi đè lên các tệp dữ liệu chính trên đĩa. WAL bao gồm các bản ghi log chứa thông tin về giao dịch, giá trị cũ và giá trị mới của dữ liệu. Trong trường hợp hệ thống gặp sự cố (mất điện, crash), khi khởi động lại, DBMS sẽ đọc file WAL để thực hiện lại (REDO) các giao dịch đã cam kết nhưng chưa kịp ghi vào đĩa, hoặc hoàn tác (UNDO) các giao dịch đang dang dở, đảm bảo dữ liệu luôn nhất quán.
+
+\subsection{Giải thuật trong DBMS}
+
+\textbf{1. Giải thuật Sắp xếp Trộn Ngoài (External Merge Sort)}
+
+Trong môi trường cơ sở dữ liệu, các bảng dữ liệu thường có kích thước rất lớn, vượt quá dung lượng của bộ nhớ RAM (ví dụ: sắp xếp một bảng 100GB trên máy có 16GB RAM). Để giải quyết vấn đề này, DBMS sử dụng giải thuật External Merge Sort. Giải thuật này bao gồm hai giai đoạn chính. Giai đoạn 1 (Sorting): chia dữ liệu lớn thành các khối nhỏ (runs) vừa với bộ nhớ, sắp xếp từng khối trong bộ nhớ rồi ghi tạm ra đĩa. Giai đoạn 2 (Merging): đọc đồng thời các khối đã sắp xếp từ đĩa vào bộ nhớ, trộn chúng lại theo thứ tự để tạo ra kết quả cuối cùng hoàn chỉnh. Đây là giải thuật nền tảng cho các câu lệnh `ORDER BY`, `GROUP BY` hay phép nối `Merge Join`.
+
+\textbf{2. Giải thuật Khóa hai giai đoạn (Two-Phase Locking - 2PL)}
+
+Two-Phase Locking là một giao thức kiểm soát đồng thời (Concurrency Control) để đảm bảo tính tuần tự (Serializability) của các giao dịch. Giải thuật này quy định mỗi giao dịch phải tuân thủ hai giai đoạn rõ rệt: Giai đoạn mở rộng (Growing Phase), trong đó giao dịch chỉ được phép xin thêm khóa mới mà không được giải phóng khóa nào; và Giai đoạn thu hẹp (Shrinking Phase), bắt đầu ngay khi giao dịch giải phóng khóa đầu tiên, và từ đó nó không được phép xin thêm bất kỳ khóa nào nữa. Việc tuân thủ quy tắc này giúp ngăn chặn các vấn đề tranh chấp dữ liệu nhưng có thể dẫn đến hiện tượng tắc nghẽn (deadlock), đòi hỏi hệ thống phải có cơ chế phát hiện và xử lý đi kèm.
+
+\textbf{3. Tối ưu hóa truy vấn dựa trên chi phí (Cost-Based Query Optimization)}
+
+Khi nhận một câu lệnh SQL từ người dùng, bộ tối ưu hóa truy vấn (Query Optimizer) của DBMS không thực thi ngay mà sẽ tìm kiếm phương án thực thi (Execution Plan) hiệu quả nhất. Giải thuật này sử dụng các kỹ thuật như Quy hoạch động (Dynamic Programming) hoặc Thuật toán tham lam (Greedy Algorithm) để xây dựng không gian các kế hoạch khả thi. Với mỗi kế hoạch, nó ước tính "chi phí" dựa trên các thống kê về dữ liệu (như số lượng dòng, phân bố giá trị, độ sâu của cây chỉ mục...). Kế hoạch có chi phí ước tính thấp nhất (ít tốn CPU và Disk I/O nhất) sẽ được chọn để thực thi. Đây là một trong những giải thuật phức tạp và thông minh nhất trong kiến trúc của một DBMS hiện đại.
+
+\section{Hệ Thông Tin Địa Lý (GIS)}
+
+Hệ thống thông tin địa lý (GIS) làm việc với dữ liệu không gian (spatial data), đòi hỏi các cách lưu trữ và xử lý khác biệt hoàn toàn so với dữ liệu văn bản hay số thông thường.
+
+\subsection{Cấu trúc dữ liệu trong GIS}
+
+\textbf{1. Cây Tứ phân (Quadtree)}
+
+Quadtree là một cấu trúc dữ liệu phân cấp dùng để phân chia không gian 2 chiều. Nguyên lý của nó là chia một vùng không gian hình vuông thành bốn vùng con bằng nhau (tây bắc, đông bắc, tây nam, đông nam). Quá trình này lặp lại đệ quy cho đến khi mỗi vùng con đạt được độ đồng nhất nhất định hoặc chứa một số lượng đối tượng đủ nhỏ. Trong GIS, Quadtree rất hiệu quả để lưu trữ dữ liệu dạng raster (ảnh vệ tinh) hoặc để đánh chỉ mục cho các điểm dữ liệu phân bố không đều. Ví dụ, khi lưu trữ bản đồ mật độ dân cư, các khu vực thành phố đông đúc sẽ được chia nhỏ sâu hơn (nhiều nút lá hơn) so với các vùng nông thôn hay sa mạc, giúp tiết kiệm bộ nhớ và tăng tốc độ truy xuất.
+
+\textbf{2. Cây R (R-Tree)}
+
+Nếu như B+ Tree là chuẩn mực cho dữ liệu 1 chiều, thì R-Tree là cấu trúc dữ liệu tiêu chuẩn cho việc đánh chỉ mục dữ liệu đa chiều, đặc biệt là dữ liệu không gian. R-Tree tổ chức các đối tượng không gian (như con đường, tòa nhà) bằng cách nhóm chúng vào các Hình chữ nhật bao quanh tối thiểu (Minimum Bounding Rectangle - MBR). Các MBR này có thể lồng nhau, tạo thành một cấu trúc cây phân cấp. Khi người dùng thực hiện truy vấn không gian, ví dụ "tìm tất cả các cây xăng trong bán kính 2km", hệ thống sẽ duyệt cây R-Tree và nhanh chóng loại bỏ các nhánh (các MBR) nằm hoàn toàn ngoài vùng tìm kiếm, chỉ tập trung vào các khu vực giao nhau, giúp giảm đáng kể thời gian truy vấn.
+
+\textbf{3. Mô hình Dữ liệu Vector (Vector Data Model)}
+
+Mô hình dữ liệu vector là cách biểu diễn thế giới thực thông qua ba đối tượng hình học cơ bản: Điểm (Point), Đường (Line/Polyline) và Vùng (Polygon). "Điểm" được xác định bởi một cặp tọa độ (x, y), dùng để biểu diễn các vị trí cụ thể như cột đèn, giếng nước. "Đường" là một chuỗi các điểm nối tiếp nhau, biểu diễn sông ngòi, đường giao thông. "Vùng" là một đường khép kín, biểu diễn ranh giới thửa đất, hồ nước hay ranh giới hành chính. Tuy có vẻ là khái niệm đơn giản, nhưng cấu trúc lưu trữ nội tại của mô hình vector (thường là danh sách các tọa độ, topology liên kết) là nền tảng cốt lõi cho mọi phân tích không gian chính xác trong GIS.
+
+\subsection{Giải thuật trong GIS}
+
+\textbf{1. Giải thuật Dijkstra trong phân tích mạng lưới}
+
+Trong GIS, các bài toán về giao thông như "tìm đường đi ngắn nhất từ điểm A đến điểm B" hay "tìm đường cứu hỏa nhanh nhất" được mô hình hóa dưới dạng đồ thị có trọng số. Giải thuật Dijkstra là công cụ phổ biến nhất để giải quyết lớp bài toán này. Bản đồ giao thông được chuyển đổi thành các nút (giao lộ) và cạnh (đoạn đường), với trọng số có thể là chiều dài quãng đường hoặc thời gian di chuyển (tính cả tắc đường, tốc độ giới hạn). Giải thuật sẽ duyệt qua các nút để tìm ra lộ trình có tổng chi phí thấp nhất. Các ứng dụng dẫn đường như Google Maps hay Grab đều sử dụng các biến thể tối ưu của giải thuật này (như A*) để phục vụ người dùng.
+
+\textbf{2. Giải thuật Ray Casting (Point-in-Polygon)}
+
+Một câu hỏi thường gặp trong GIS là xác định xem một điểm có nằm trong một vùng hay không (Point-in-Polygon), ví dụ: "Vị trí GPS hiện tại có nằm trong vùng cấm bay hay không?". Giải thuật Ray Casting giải quyết vấn đề này bằng cách vẽ một tia (ray) tưởng tượng xuất phát từ điểm cần kiểm tra và đi ra vô cực theo một hướng bất kỳ. Sau đó, thuật toán đếm số lần tia này cắt các cạnh biên của đa giác. Theo quy tắc hình học topo, nếu số giao điểm là số lẻ, điểm đó nằm trong đa giác; nếu là số chẵn, điểm đó nằm ngoài. Đây là giải thuật đơn giản nhưng cực kỳ hiệu quả và dễ cài đặt cho các bài toán phân tích vị trí.
+
+\textbf{3. Giải thuật Phân cụm K-Means (K-Means Clustering)}
+
+Trong phân tích không gian, việc tìm ra các điểm nóng (hotspots) hoặc nhóm các đối tượng có vị trí gần nhau là rất quan trọng. K-Means là giải thuật học máy không giám sát được ứng dụng rộng rãi trong GIS để phân nhóm dữ liệu địa lý. Ví dụ, một chuỗi cửa hàng muốn mở thêm chi nhánh mới, họ có thể sử dụng K-Means để phân nhóm địa chỉ của tất cả khách hàng hiện có thành K cụm. Tâm của các cụm này sẽ là các vị trí ứng viên tiềm năng để đặt cửa hàng mới, nhằm tối ưu hóa khoảng cách phục vụ khách hàng. Giải thuật hoạt động bằng cách lặp đi lặp lại việc gán các điểm vào cụm gần nhất và cập nhật lại tâm cụm cho đến khi các cụm ổn định.
+
+\end{document}

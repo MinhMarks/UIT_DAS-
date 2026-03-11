@@ -1,0 +1,15 @@
+Bài toán: tìm vị trí xuất hiện của mẫu P trên văn bản T. cả P và T đều trong tiếng Việt có dấu.
+
+Hãy thiết kế hàm băm để thuật toán Rabin-Karp có thể giải quyết tốt bài toán trên. Giải thích các căn cứ đã được dựa vào khi thiết kế.
+
+Bài nộp dạng PDF
+======
+
+Yêu cầu bài làm: 
+- Hãy lập 10 bảng và bảng sau học hỏi cải thiện từ bảng trước. 
+- Hãy trình bày bài làm dưới dạng mã latex 
+- Các ý cần được triển khai đầy đủ, phải có câu chủ đề, giải thích lập luận rõ ràng, có ví dụ minh họa cụ thể, có hình ảnh minh họa (nếu cần thiết)
+- Trình bày sạch sẽ, khoa học, dễ đọc, dễ hiểu
+- Không đạo văn, không sao chép từ bất kỳ nguồn nào
+- Không được viết kiểu gạch đầu dòng liệt kê sơ sài, phải trình bày thành các đoạn văn hoàn chỉnh
+
