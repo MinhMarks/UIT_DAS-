@@ -1,0 +1,19 @@
+Cài đặt cây Đỏ-Đen
+
+Hãy cài đặt chương trình thực hiện các thao tác trên cây đỏ đen với giao diện console. Các thao tác cần có:
+
+Tạo cây từ tập khóa
+In cây (dạng cây thư mục)
+Thêm khóa vào cây
+Tìm khóa trên cây.
+Bài nộp: mã nguồn
+
+======
+
+Yêu cầu bài làm: 
+- Hãy lập 10 mã nguồn và cái cải thiện từ mã trước. 
+- Các ý cần được triển khai đầy đủ, phải có câu chủ đề, giải thích lập luận rõ ràng, có ví dụ minh họa cụ thể, có hình ảnh minh họa (nếu cần thiết)
+- Trình bày sạch sẽ, khoa học, dễ đọc, dễ hiểu
+- Không đạo văn, không sao chép từ bất kỳ nguồn nào
+- Vì nộp bài theo kiểu source code nên tôi muốn bạn bố chí và note vào code thật chuyên nghiệp, như các mã nguồn mở. 
+- Thêm vào file readme hướng dẫn sử dụng và thông tin, ý nghĩa của các đoạn code. 
