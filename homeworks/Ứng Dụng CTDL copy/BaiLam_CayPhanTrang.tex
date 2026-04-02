@@ -1,0 +1,64 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T8]{fontenc} % though vntex usually handles this
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\geometry{a4paper, left=2cm, right=2cm, top=2.5cm, bottom=2.5cm}
+\usepackage{hyperref}
+\usepackage{setspace}
+
+\renewcommand{\baselinestretch}{1.3}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Môn học: Cấu trúc dữ liệu và giải thuật}
+\rhead{Cây Phân Trang (B-Tree/B+ Tree)}
+\cfoot{\thepage}
+
+\begin{document}
+
+\begin{center}
+    \LARGE \textbf{BÁO CÁO BÀI TẬP VỀ NHÀ} \\[0.5cm]
+    \Large \textbf{ỨNG DỤNG CẤU TRÚC DỮ LIỆU} \\[0.2cm]
+    \Large \textbf{LỰA CHỌN BẬC M CHO CÂY PHÂN TRANG (B-TREE/B+ TREE)} \\[0.5cm]
+    \normalsize \textbf{Sinh viên thực hiện:} Trần Lê Minh Nhật - \textbf{MSSV:} 23521098
+\end{center}
+\vspace{1cm}
+
+\section*{Vấn đề đặt ra}
+Cây phân trang bậc $M$ có vai trò làm chỉ mục cho bảng dữ liệu gồm $N$ dòng, với $N > 10^7$. Kích thước một khóa tìm kiếm là $S$ bytes và độ lớn trường offset trên chỉ mục là $8$ bytes. Lựa chọn $M$ thích hợp và giải thích lý do lựa chọn. Để giải quyết, chúng ta sẽ xây dựng mô hình hệ thức phụ thuộc kích thước của khối đĩa cứng.
+
+\section*{Phân tích và lựa chọn bậc $M$}
+
+\textbf{Khái niệm về trang trên ổ đĩa vật lý:} 
+Trong kiến trúc hệ thống lưu trữ ngoại vi hiện đại, bộ nhớ vật lý được phân vùng thành các đơn vị có kích thước cố định gọi là khối (block) hay trang (page). Quá trình đọc hay ghi đĩa không diễn ra theo từng byte vụn vặt lẻ tẻ mà luôn được thao tác nguyên khối lượng tài nguyên dữ liệu nhằm gạt bỏ độ trễ và tối thiểu hóa số lần nhập xuất (disk I/O). Kích thước của khối này thường được gán cho biến số $B$ (bytes), trong đó các giá trị thực tiễn phổ biến thường thấy là $4096$, $8192$ hoặc $16384$ bytes tùy theo kiến trúc hệ điều hành và nền tảng quản trị cơ sở dữ liệu.
+
+\textbf{Đặc điểm cấu trúc phân bổ của hệ rẽ nhánh:} 
+Cây phân trang (B-Tree/B+ Tree) được thiết kế đặc thù nhằm đồng bộ hóa chặt chẽ với cơ chế lưu trữ khối của cấu trúc máy tính. Nguyên định kiện tối cao để đảm bảo hoạt động hiệu quả là: kích thước tổng của một nút nội (internal node) trên cây phân trang phải được thiết lập nhỏ hơn hoặc vừa khít đúng bằng kích thước một trang đĩa $B$. Trong một cây phân trang bậc $M$, mỗi nút nội sẽ tổ chức để bao bọc tối đa $M$ con trỏ (chỉ đến các vùng không gian tài nguyên của nút con phân nhánh) và $M-1$ khóa tìm kiếm dùng làm vạch ranh giới, định tuyến cho quá trình rà soát. Theo số liệu của tác giả, mỗi con trỏ (trường offset) yêu cầu không gian trích lục là $8$ bytes, trong khi một khóa tra dò cần $S$ bytes bộ nhớ. 
+
+\textbf{Mô hình hệ thức tối ưu hóa kích thước nút:} 
+Mục tiêu trung tâm là khuếch đại uy lực phân nhánh trên thân cây đồng thời bảo toán vững chắc nguyên lý thiết kế: tổng trọng lượng của các khóa và con trỏ không bao giờ được phép văng ra khỏi đường biên $B$. Ràng buộc giới hạn này được chi tiết hóa thành một bất phương trình dung lượng vô cùng logic và rành mạch:
+\begin{equation}
+    M \times 8 + (M - 1) \times S \leq B
+\end{equation}
+Dễ dàng tiến hành các bước điều biến đại số thông thường, nhóm cụm các thành tố có ẩn số $M$ chung vế, phần còn lại chuyển phía, ta xác lập được:
+\begin{equation}
+    M \times (8 + S) - S \leq B
+\end{equation}
+Đẳng thức giới hạn cực trị tiếp tục được thu gọn và tinh giản thành hệ thức chung thẩm:
+\begin{equation}
+    M \leq \frac{B + S}{8 + S}
+\end{equation}
+Khao khát mãnh liệt nhất của thuật toán là đè xẹp cấu trúc cây thật bẹt và thật lùn, hạn định tầng lớp rễ ngập càng nông càng tốt. Điều này đồng nghĩa với việc ta luôn khao khát giá trị bậc phân nhánh $M$ phải chạm dần lên cực đỉnh. Tuy nhiên bậc $M$ chỉ có thể là tham chiếu số lượng nguyên dương, do đó kết luận đáp án lý tưởng nhất luôn được công thức hóa dưới biểu thức sau:
+\begin{equation}
+    M = \left\lfloor \frac{B + S}{8 + S} \right\rfloor
+\end{equation}
+
+\textbf{Kết luận và lý giải tính triệt để nguyên vẹn:}
+Lựa chọn công thức ấn định $M = \lfloor (B + S)/(8 + S) \rfloor$ chính là chìa khóa thần kỳ xóa mờ sự nặng nề của vòng lặp dò cứng. Bằng tư duy tham lam vắt cạn kiệt không gian chứa của $B$, cấu trúc cây phân vùng bùng ra thành một mảng tản nhánh vô kể. Có được bậc $M$ trọn vẹn sức chứa trang đĩa, cấu trúc đảm bảo tính năng tra soát sấm sét: cho dù bảng dữ liệu có đồ sộ cỡ $N > 10^7$ record, thời gian thực thi vẫn bị ép cứng từ $3$ đến $4$ nhịp truy xuất vật lý chớp nhoáng (ví dụ khi $B=8192$, $S=16$, thì $M=342$, giới hạn chiều cao cây là $\log_{171}{(10^7)} \approx 3.1$). Phương pháp đong đếm rạch ròi tỉ lệ lượng chứa các thông số chưa biết trong phễu tính toán đã chứng minh và biện luận vững chãi cơ sở logic duy trì năng lực truy cập của hệ quản trị dữ liệu lớn.
+
+\end{document}

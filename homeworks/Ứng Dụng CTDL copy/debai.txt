@@ -1,0 +1,13 @@
+Cây phân trang bậc M có vai trò làm chỉ mục cho bảng dữ liệu gồm N dòng (>10^7); kích thước khóa tìm kiếm là S bytes, độ lớn trường offset trên chỉ mục là 8 bytes. Hãy chọn M thích hợp và giải thích lý do chọn lựa
+
+Bài nộp dạng PDF
+======
+
+Yêu cầu bài làm: 
+- Các thông số chưa được biết rõ, cứ đặt là biến rồi gán vào tính bình thường. 
+- Hãy trình bày bài làm dưới dạng mã latex 
+- Các ý cần được triển khai đầy đủ, phải có câu chủ đề, giải thích lập luận rõ ràng, có ví dụ minh họa cụ thể, có hình ảnh minh họa (nếu cần thiết)
+- Trình bày sạch sẽ, khoa học, dễ đọc, dễ hiểu
+- Không đạo văn, không sao chép từ bất kỳ nguồn nào
+- Không được viết kiểu gạch đầu dòng liệt kê sơ sài, phải trình bày thành các đoạn văn hoàn chỉnh
+

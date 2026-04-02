@@ -1,0 +1,335 @@
+\documentclass[12pt,a4paper]{article}
+
+% ─── Encoding & Language ──────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+
+% ─── Layout ───────────────────────────────────────────────────────────────────
+\usepackage[
+  top=2.5cm, bottom=2.5cm,
+  left=3cm,  right=2.5cm
+]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ─── Graphics & Color ─────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% ─── Code Listing ─────────────────────────────────────────────────────────────
+\usepackage{listings}
+\lstset{
+  basicstyle=\small\ttfamily,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{gray!30},
+  backgroundcolor=\color{gray!5},
+  breaklines=true,
+  tabsize=2,
+  showstringspaces=false,
+  captionpos=b,
+}
+
+% ─── Tables & Box ─────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable, theorems}
+
+% ─── Hyperlinks ───────────────────────────────────────────────────────────────
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  urlcolor=blue!70!black,
+  pdftitle={B-Tree Student Index Simulator},
+  pdfauthor={Sinh viên UIT},
+}
+
+% ─── Math ─────────────────────────────────────────────────────────────────────
+\usepackage{amsmath, amssymb}
+
+% ─── Custom Colors ────────────────────────────────────────────────────────────
+\definecolor{darkblue}{RGB}{13, 27, 62}
+\definecolor{accent}{RGB}{59, 130, 246}
+\definecolor{lightblue}{RGB}{219, 234, 254}
+\definecolor{codebg}{RGB}{248, 250, 252}
+\definecolor{nodecolor}{RGB}{30, 58, 95}
+\definecolor{splitcolor}{RGB}{124, 58, 237}
+\definecolor{foundcolor}{RGB}{22, 163, 74}
+\definecolor{warncolor}{RGB}{220, 38, 38}
+\definecolor{highlightcolor}{RGB}{217, 119, 6}
+
+% ─── Custom Boxes ─────────────────────────────────────────────────────────────
+\newtcolorbox{infobox}[1][]{
+  colback=lightblue!60,
+  colframe=accent,
+  fonttitle=\bfseries,
+  title=#1,
+  arc=4pt,
+  boxrule=1pt,
+}
+
+\newtcolorbox{warnbox}[1][]{
+  colback=red!8,
+  colframe=warncolor,
+  fonttitle=\bfseries,
+  title=#1,
+  arc=4pt,
+  boxrule=1pt,
+}
+
+\newtcolorbox{notebox}[1][Ghi chú]{
+  colback=yellow!10,
+  colframe=highlightcolor,
+  fonttitle=\bfseries,
+  title=#1,
+  arc=4pt,
+  boxrule=1pt,
+}
+
+% ─── Section formatting ───────────────────────────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\section}
+  {\large\bfseries\color{darkblue}}
+  {\thesection.}{0.5em}{}[\vspace{-0.3em}\hrule\vspace{0.5em}]
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{accent!80!black}}
+  {\thesubsection.}{0.5em}{}
+
+% ─── Header / Footer ──────────────────────────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\textcolor{gray}{DSA++ | UIT}}
+\chead{\small\textcolor{gray}{B-Tree Student Index Simulator}}
+\rhead{\small\textcolor{gray}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ─── TikZ Styles ──────────────────────────────────────────────────────────────
+\tikzset{
+  btnode/.style={
+    rectangle split, rectangle split parts=#1,
+    draw=nodecolor!80, fill=nodecolor!15,
+    rectangle split horizontal,
+    minimum height=1.8em,
+    text width=1.8em,
+    align=center,
+    font=\small\ttfamily,
+    inner sep=2pt,
+  },
+  edge/.style={
+    -Stealth, draw=gray!60, thick
+  },
+  highlight/.style={
+    draw=highlightcolor, fill=highlightcolor!20, thick
+  },
+  found/.style={
+    draw=foundcolor, fill=foundcolor!15, thick
+  },
+  overflow/.style={
+    draw=warncolor, fill=warncolor!15, thick, dashed
+  },
+  split/.style={
+    draw=splitcolor, fill=splitcolor!15, thick
+  },
+}
+
+% ─── Begin Document ───────────────────────────────────────────────────────────
+\begin{document}
+
+\title{%
+  \textbf{B-Tree Student Index Simulator}\\[0.4em]
+  \large Ứng dụng giả lập hệ quản trị cơ sở dữ liệu đơn giản
+}
+\author{%
+  \textbf{Sinh viên thực hiện:} Trần Lê Minh Nhật \quad \textbf{MSSV:} 23521098\\[0.3em]
+  \textbf{Giảng viên hướng dẫn:} [Tên Giảng Viên]\\[0.3em]
+  Môn học: Cấu trúc dữ liệu và Giải thuật nâng cao (DSA++)\\
+  Trường Đại học Công nghệ Thông tin --- ĐHQG TP.HCM%
+}
+\date{Năm học 2025--2026}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{abstract}
+Tài liệu này hướng dẫn sử dụng ứng dụng \textbf{B-Tree Student Index Simulator}
+— một công cụ trực quan hóa tương tác được xây dựng bằng HTML5, CSS3, JavaScript
+và D3.js nhằm minh họa cách các hệ quản trị cơ sở dữ liệu (DBMS) sử dụng cấu trúc
+dữ liệu B-Tree để tổ chức chỉ mục (Index). Người dùng có thể thao tác thêm, xóa,
+tìm kiếm sinh viên theo MSSV hoặc theo tên, đồng thời quan sát toàn bộ quá trình
+thuật toán thực thi từng bước qua hệ thống hoạt hình (animation) với đầy đủ chú thích
+màu sắc và nhật ký thực thi.
+\end{abstract}
+
+% ─── Table of Contents ────────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Giới thiệu tổng quan}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Ứng dụng \textbf{B-Tree Student Index Simulator} được xây dựng nhằm mục đích minh họa trực quan cách thức mà các hệ quản trị cơ sở dữ liệu (Database Management Systems — DBMS) như MySQL hay PostgreSQL sử dụng cấu trúc dữ liệu B-Tree để tổ chức và tăng tốc thao tác truy vấn. Thay vì chỉ trình bày lý thuyết khô khan, ứng dụng này cho phép người dùng \emph{tương tác trực tiếp} với cây B-Tree thông qua các thao tác thêm, xóa, tìm kiếm sinh viên, đồng thời quan sát toàn bộ quá trình thuật toán thực thi theo từng bước thông qua hệ thống hoạt hình (animation).
+
+Bài toán được đặt ra là quản lý danh sách sinh viên, trong đó mỗi sinh viên có các thông tin gồm Mã số sinh viên (MSSV), họ và tên, giới tính, ngày sinh, điểm GPA và lớp học. MSSV được chọn làm khóa chính (primary key) của B-Tree chỉ mục bởi bốn lý do cụ thể: thứ nhất, MSSV là duy nhất (unique) trong toàn bộ hệ thống, đảm bảo không có khóa trùng lặp; thứ hai, MSSV có dạng số nguyên với thứ tự toàn phần tự nhiên, phù hợp để so sánh và sắp xếp trong B-Tree; thứ ba, MSSV là định danh chính thức được sử dụng thường xuyên nhất trong các truy vấn theo đúng trường hợp sử dụng thực tế của DBMS; thứ tư, kích thước cố định 8 chữ số giúp ước lượng dung lượng bộ nhớ cho mỗi khóa một cách đồng nhất.
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Cấu trúc dữ liệu B-Tree — Nền tảng lý thuyết}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Định nghĩa và tính chất}
+
+Một \textbf{B-Tree bậc $m$} (còn gọi là \emph{m-way B-Tree}) là cây tìm kiếm tổng quát thỏa mãn các tính chất sau đây. Mỗi node (nút) trong cây chứa tối đa $m-1$ khóa và tối đa $m$ con trỏ đến các node con. Mỗi node không phải gốc (root) và không phải lá (leaf) phải chứa ít nhất $\lceil m/2 \rceil - 1$ khóa, nghĩa là mỗi node luôn ít nhất nửa đầy. Tất cả các node lá đều nằm ở cùng một mức (level), điều này đảm bảo cây luôn \emph{cân bằng hoàn hảo}. Các khóa trong mỗi node được sắp xếp theo thứ tự tăng dần, và với mỗi khóa $K_i$ trong một node nội (internal node), tất cả các khóa trong cây con bên trái đều nhỏ hơn $K_i$, còn tất cả các khóa trong cây con bên phải đều lớn hơn $K_i$.
+
+Trong ứng dụng này, chúng ta mặc định sử dụng \textbf{B-Tree bậc $m = 3$}, hay còn gọi là \emph{2-3 Tree}. Đây là B-Tree đơn giản nhất có nhiều hơn hai con, phù hợp nhất cho việc minh họa vì các thao tác Split và Merge xảy ra thường xuyên và dễ quan sát.
+
+\begin{figure}[h]
+  \centering
+  % Chụp ảnh màn hình (đặt tên file: hinh1\_btree\_m3.png)
+  \includegraphics[width=0.75\textwidth]{hinh1_btree_m3.png}
+  \caption{B-Tree bậc 3 (2-3 Tree) với 5 sinh viên. Node gốc chứa 2 khóa, có 3 con.}
+  \label{fig:btree-m3}
+\end{figure}
+
+\subsection{So sánh với Binary Search Tree và ý nghĩa thực tiễn}
+
+Điều làm cho B-Tree vượt trội so với Cây tìm kiếm nhị phân (Binary Search Tree — BST) chính là khả năng giảm thiểu số lần truy cập vào đĩa cứng. Trong BST, mỗi node chỉ chứa một khóa và tối đa hai con, do đó với $n$ khóa, cây có thể cao đến $O(n)$ trong trường hợp suy biến (degenerate case), hoặc $O(\log_2 n)$ trong trường hợp cân bằng. Mỗi lần đi xuống một level chính là một lần đọc dữ liệu từ đĩa (disk I/O operation). Ngược lại, B-Tree bậc $m$ có chiều cao tối đa chỉ là $O(\log_m n)$, và vì $m$ thường được chọn lớn (từ vài trăm đến vài nghìn trong thực tế của DBMS), nên số lần truy cập đĩa giảm xuống còn rất nhỏ — thường chỉ từ 2 đến 4 lần cho dù cơ sở dữ liệu có đến hàng triệu bản ghi.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Hướng dẫn giao diện người dùng}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Tổng quan bố cục}
+
+Giao diện của ứng dụng được tổ chức theo mô hình ba cột (three-panel layout), kết hợp với một thanh tiêu đề (header) ở phía trên. Mỗi vùng giao diện đảm nhận một vai trò chức năng riêng biệt, được thiết kế theo nguyên tắc phân tách mối quan tâm (separation of concerns) để người dùng có thể đồng thời quan sát dữ liệu gốc, trạng thái của cây chỉ mục và nhật ký thực thi thuật toán trong một màn hình duy nhất.
+
+\begin{figure}[h]
+  \centering
+  % Chụp ảnh màn hình (đặt tên file: hinh2\_layout.png)
+  \includegraphics[width=0.85\textwidth]{hinh2_layout.png}
+  \caption{Sơ đồ bố cục tổng thể của ứng dụng (3 panel).}
+  \label{fig:layout}
+\end{figure}
+
+\subsection{Thanh tiêu đề (Header)}
+
+Thanh tiêu đề nằm ở đầu trang và hiển thị tên ứng dụng cùng thông tin nhận diện. Quan trọng hơn, nó chứa \textbf{bộ chọn bậc cây $m$} cho phép người dùng thay đổi bậc của B-Tree, hiện hỗ trợ các giá trị từ 3 đến 7. Khi người dùng thay đổi $m$, hệ thống sẽ cảnh báo và sau khi xác nhận, toàn bộ cây sẽ được xây dựng lại từ đầu với cùng tập dữ liệu sinh viên nhưng với tham số bậc mới. Tính năng này cho phép quan sát một cách trực quan sự thay đổi hình dạng của cây khi $m$ tăng lên: cây trở nên thấp hơn và rộng hơn (chiều cao giảm nhờ $O(\log_m n)$), qua đó giải thích tại sao DBMS thực tế thường chọn $m$ rất lớn.
+
+\subsection{Panel điều khiển bên trái}
+
+Panel này là nơi người dùng nhập liệu và ra lệnh cho hệ thống. Nó bao gồm bốn vùng chức năng chính.
+
+\textbf{Vùng Thêm sinh viên} chứa biểu mẫu (form) với các trường: MSSV (bắt buộc, đúng 8 chữ số), Họ và tên (bắt buộc), Giới tính, GPA, Ngày sinh và Lớp. Sau khi nhấn nút \textbf{``Thêm \& Mô phỏng''}, hệ thống sẽ thực thi thuật toán chèn và sinh ra chuỗi các bước hoạt hình; người dùng có thể xem từng bước thông qua phần điều khiển bước ở panel phải.
+
+\textbf{Vùng Xóa sinh viên} nhận MSSV cần xóa. Tương tự thao tác thêm, toàn bộ quá trình xóa trong B-Tree bao gồm các trường hợp Borrow và Merge sẽ được mô phỏng theo từng bước.
+
+\textbf{Vùng Tìm theo MSSV} thực hiện tìm kiếm theo chỉ mục (Index Search) với độ phức tạp $O(\log_m n)$. Khi thực thi, thuật toán duyệt từ gốc xuống lá, tại mỗi node áp dụng tìm kiếm nhị phân (Binary Search) trên mảng khóa đã sắp xếp để xác định hướng đi tiếp theo.
+
+\textbf{Vùng Tìm theo Tên} thực hiện quét toàn bộ cây (Full Table Scan) vì không có chỉ mục theo tên. Đây là tính năng minh họa đặc biệt: người dùng có thể quan sát ``con chạy'' quét qua từng khóa một, qua đó cảm nhận trực tiếp sự kém hiệu quả $O(n)$ so với tìm kiếm theo chỉ mục $O(\log_m n)$.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Mô phỏng các phép toán}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Phép Chèn và Tách node (Insert \& Split)}
+
+Phép chèn trong B-Tree tuân theo nguyên tắc \emph{luôn chèn vào node lá}. Thuật toán bắt đầu từ gốc và duyệt xuống lá phù hợp; trên đường đi, nếu một node con đang đầy (chứa $m-1$ khóa), nó sẽ được tách trước khi đi vào. Kịch bản minh họa cụ thể sau đây trình bày quá trình chèn năm sinh viên vào B-Tree bậc 3.
+
+\medskip
+
+\begin{figure}[h]
+  \centering
+  % Chụp ảnh màn hình (đặt tên file: hinh3\_split.png)
+  \includegraphics[width=0.80\textwidth]{hinh3_split.png}
+  \caption{Minh họa thao tác Insert, nhưng nút hiện tại bị tràn.}
+  \label{fig:split}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  % Chụp ảnh màn hình (đặt tên file: hinh3\_split.png)
+  \includegraphics[width=0.80\textwidth]{hinh3_split1.png}
+  \caption{Minh họa thao tác Split khi node đầy. Khóa giữa được đẩy lên root mới.}
+  \label{fig:split}
+\end{figure}
+
+
+Trong ứng dụng, quá trình này được thể hiện qua các bước hoạt hình riêng biệt với mã màu: \textcolor{warncolor}{\textbf{đỏ}} đánh dấu node đang bị overflow, \textcolor{splitcolor}{\textbf{tím}} đánh dấu khóa được đẩy lên khi split, và \textcolor{foundcolor}{\textbf{xanh lá}} đánh dấu vị trí chèn thành công cuối cùng.
+
+\subsection{Phép Tìm kiếm (Search)}
+
+Tìm kiếm theo MSSV trong B-Tree là một trong những thao tác đẹp nhất về mặt độ phức tạp. Thuật toán bắt đầu từ gốc và tại mỗi node, áp dụng tìm kiếm nhị phân trên mảng khóa đã sắp xếp. Nếu khóa tìm kiếm $k$ bằng $K_i$ thì trả về kết quả tìm thấy; nếu $k < K_i$ thì đi vào cây con bên trái $K_i$; nếu $k > K_{i-1}$ và $k < K_i$ thì đi vào cây con giữa; cứ như vậy cho đến khi đến node lá mà không tìm thấy, kết luận $k$ không tồn tại trong cây.
+
+Độ phức tạp thời gian của phép tìm kiếm là $O(\log_m n \cdot \log_2 m)$, trong đó $\log_m n$ là chiều cao của cây và $\log_2 m$ là chi phí tìm kiếm nhị phân trong mỗi node. Trong thực tế của DBMS, vì $m$ thường cố định (được xác định bởi kích thước trang đĩa), nên $\log_2 m$ là hằng số và tổng chi phí được coi là $O(\log n)$.
+
+Ứng dụng làm nổi bật đường tìm kiếm bằng màu \textcolor{highlightcolor}{\textbf{vàng}} cho các khóa đang được so sánh, và màu \textcolor{foundcolor}{\textbf{xanh lá}} khi tìm thấy (hoặc \textcolor{warncolor}{\textbf{đỏ}} khi không tìm thấy). Người dùng có thể nhấn nút ``Next'' để xem từng lần so sánh một.
+
+\subsection{Phép Xóa, Mượn và Gộp (Delete, Borrow \& Merge)}
+
+Xóa một khóa khỏi B-Tree là phép toán phức tạp nhất, đòi hỏi xử lý nhiều trường hợp để duy trì tính chất cân bằng. Ứng dụng minh họa đầy đủ ba trường hợp chính.
+
+\textbf{Trường hợp 1 — Xóa tại node lá (trường hợp đơn giản):} Nếu node lá chứa khóa cần xóa và có hơn $\lceil m/2 \rceil - 1$ khóa (tức là sau khi xóa vẫn đủ số khóa tối thiểu), thuật toán đơn giản là loại khóa đó ra. Ứng dụng hiển thị bước này với màu \textcolor{warncolor}{\textbf{đỏ}} trên khóa bị xóa.
+
+\textbf{Trường hợp 2 — Xóa tại node nội (Borrow):} Khi khóa cần xóa nằm ở node nội, thuật toán sẽ thay thế nó bằng khóa predecessor (khóa lớn nhất trong cây con bên trái) hoặc successor (khóa nhỏ nhất trong cây con bên phải), sau đó đệ quy xóa khóa thay thế đó. Ứng dụng minh họa quá trình này bằng mũi tên chỉ chiều di chuyển của khóa.
+
+\textbf{Trường hợp 3 — Node con thiếu khóa (Merge):} Khi một node con chỉ còn $\lceil m/2 \rceil - 2$ khóa sau khi xóa (dưới mức tối thiểu), hệ thống sẽ cố gắng mượn từ node anh em (sibling) qua node cha (rotation), hoặc nếu anh em cũng chỉ có số khóa tối thiểu thì thực hiện gộp (merge) hai node lại thành một, đồng thời kéo một khóa từ node cha xuống. Ứng dụng hiển thị thao tác merge bằng hiệu ứng hai node ``hút'' vào nhau kèm khóa cha ``rơi xuống''.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Hệ thống điều khiển bước (Step-by-step)}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Điểm đặc sắc nhất của ứng dụng là hệ thống điều khiển bước, cho phép người dùng quan sát từng bước của thuật toán thay vì chỉ thấy kết quả cuối cùng. Hệ thống này hoạt động theo kiến trúc \emph{Frame-based Animation}: mỗi thao tác (Insert, Search, Delete) được phân tích thành một mảng các \emph{frame}, trong đó mỗi frame là một bản chụp (snapshot) trạng thái của cây tại một bước cụ thể cùng với thông tin về các khóa cần tô màu và thông điệp giải thích.
+
+\medskip
+
+Panel phải của ứng dụng cung cấp ba nút điều khiển chính: nút \textbf{``◀ Prev''} để quay về bước trước, nút \textbf{``▶ Tự động''} để phát tự động liên tục (auto-play), và nút \textbf{``Next ▶''} để tiến đến bước tiếp theo. Thanh trượt tốc độ cho phép điều chỉnh thời gian giữa các bước từ 200ms đến 2000ms. Bộ đếm ``Bước X / Y'' hiển thị vị trí hiện tại trong chuỗi animation. Song song với việc cây thay đổi trên canvas, \textbf{Console Log} ở phía dưới ghi lại thông điệp giải thích từng bước bằng ngôn ngữ tự nhiên, tạo nên sự liên kết chặt chẽ giữa hình ảnh trực quan và lý thuyết thuật toán.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Kịch bản mô phỏng mẫu (A+ Scenario)}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Để trải nghiệm đầy đủ tất cả tính năng của ứng dụng, người dùng được khuyến nghị thực hiện kịch bản sau đây theo thứ tự.
+
+Bước đầu tiên, nhấn nút \textbf{``�� Mẫu''} để tải dữ liệu sẵn có gồm bảy sinh viên với các MSSV được chọn để tạo ra cấu trúc cây thú vị khi được chèn vào B-Tree bậc 3. Bước thứ hai, quan sát cây đã được xây dựng sẵn và kiểm tra bảng dữ liệu ở panel phải để thấy sự tương ứng giữa chỉ mục (cây) và dữ liệu thô (bảng). Bước thứ ba, nhập MSSV \texttt{22521750} vào ô ``Tìm theo MSSV'' và nhấn tìm, sau đó dùng nút ``Next ▶'' để xem từng bước so sánh và nhận thấy rằng chỉ cần 2 bước so sánh để tìm ra kết quả trong khi bảng có 7 bản ghi. Bước thứ tư, thêm sinh viên mới với MSSV \texttt{22521800} và quan sát quá trình Split xảy ra khi node bị đầy. Bước thứ năm, nhập tên ``Nguyễn'' vào ô tìm theo tên và quan sát toàn bộ cây bị quét lần lượt, từ đó thấy rõ sự chênh lệch hiệu năng giữa hai phương pháp tìm kiếm.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Cấu trúc dự án và công nghệ}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Cấu trúc thư mục}
+
+Toàn bộ mã nguồn của ứng dụng được tổ chức trong thư mục \texttt{src/} theo phân tách rõ ràng giữa các lớp: giao diện, logic thuật toán và hiển thị đồ họa.
+
+\begin{lstlisting}[language=bash, caption={Cấu trúc thư mục dự án}]
+project-root/
+├── src/
+│   ├── index.html       # Giao dien chinh (HTML structure)
+│   ├── style.css        # Dark theme + layout
+│   ├── btree.js         # Core B-Tree logic + animation frames
+│   ├── visualizer.js    # D3.js rendering engine
+│   └── app.js           # UI controller + event handlers
+└── docs/
+    └── huong_dan_su_dung.tex   # Tai lieu nay
+\end{lstlisting}
+
+\subsection{Lựa chọn công nghệ}
+
+Ứng dụng được xây dựng hoàn toàn bằng các công nghệ web thuần (vanilla), không phụ thuộc vào bất kỳ framework nào ngoại trừ \textbf{D3.js v7}. Quyết định này xuất phát từ ba lý do chính: thứ nhất, D3.js là thư viện ``tiêu chuẩn vàng'' cho trực quan hóa dữ liệu trên web, cung cấp công cụ kiểm soát SVG mức thấp cần thiết để tạo hiệu ứng di chuyển node mượt mà; thứ hai, việc không sử dụng framework giúp mã nguồn minh bạch, dễ hiểu và là nền tảng tốt cho mục đích học thuật; thứ ba, toàn bộ ứng dụng chỉ cần mở tệp \texttt{index.html} trong trình duyệt mà không cần bất kỳ bước build hay server nào.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Kết luận và liên hệ thực tế}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+Qua quá trình xây dựng và sử dụng ứng dụng, người học có thể rút ra những kết luận quan trọng về cách B-Tree đóng vai trò nền tảng trong các hệ quản trị cơ sở dữ liệu hiện đại. Thứ nhất, cấu trúc tự cân bằng của B-Tree đảm bảo rằng mọi thao tác tìm kiếm, chèn và xóa đều có thời gian thực thi được đảm bảo trong giới hạn logarithm, bất kể thứ tự chèn dữ liệu là như thế nào. Thứ hai, sự phân tách giữa \emph{Key} (MSSV trong chỉ mục) và \emph{Data Pointer} (thông tin đầy đủ trong bảng gốc) chính là cơ chế cốt lõi giúp Index trong DBMS tiết kiệm bộ nhớ và tăng tốc truy vấn mà không cần lưu trữ toàn bộ bản ghi trong cây. Thứ ba, thực nghiệm với tìm kiếm theo tên (không có chỉ mục) so với tìm kiếm theo MSSV (có chỉ mục) cho thấy rõ ràng lý do tại sao việc lựa chọn cột để đánh chỉ mục là một trong những quyết định thiết kế quan trọng nhất khi xây dựng cơ sở dữ liệu.
+
+\end{document}

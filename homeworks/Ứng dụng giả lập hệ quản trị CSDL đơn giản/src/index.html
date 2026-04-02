@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B-Tree Student Index Simulator | DSA++ UIT</title>
+  <meta name="description" content="Ứng dụng mô phỏng B-Tree làm chỉ mục trong hệ quản trị cơ sở dữ liệu. Trực quan hóa Insert, Split, Search, Delete với animation." />
+
+  <!-- D3.js v7 -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="header-logo">
+      <div class="logo-icon">🌳</div>
+      <div>
+        <div class="header-title">B-Tree Index Simulator</div>
+        <div class="header-subtitle">DSA++ · UIT · Ứng dụng minh họa hệ quản trị CSDL</div>
+      </div>
+    </div>
+
+    <div class="header-spacer"></div>
+
+    <div class="header-controls">
+      <div class="order-control">
+        <span class="order-label">Bậc cây (m) =</span>
+        <select id="order-select" class="order-select">
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+      </div>
+      <span class="header-badge">B-Tree · Index Simulator</span>
+    </div>
+  </header>
+
+  <!-- ── BODY ────────────────────────────────────────────────────────────── -->
+  <main class="app-body">
+
+    <!-- ── LEFT PANEL: Controls ──────────────────────────────────────────── -->
+    <aside class="left-panel">
+
+      <!-- Add Student -->
+      <div class="panel-section">
+        <div class="section-title">Thêm sinh viên</div>
+        <form id="form-add" autocomplete="off">
+          <div class="form-group">
+            <label class="form-label" for="input-mssv">MSSV <span style="color:#ef4444">*</span></label>
+            <input id="input-mssv" class="form-input" type="text"
+              placeholder="22521234" maxlength="8" pattern="\d{8}"
+              title="MSSV gồm 8 chữ số" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-hoten">Họ và tên <span style="color:#ef4444">*</span></label>
+            <input id="input-hoten" class="form-input" type="text"
+              placeholder="Nguyễn Văn A" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="input-gioitinh">Giới tính</label>
+              <select id="input-gioitinh" class="form-select">
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-gpa">GPA</label>
+              <input id="input-gpa" class="form-input" type="number"
+                placeholder="3.50" min="0" max="4" step="0.01" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="input-ngaysinh">Ngày sinh</label>
+              <input id="input-ngaysinh" class="form-input" type="date" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-lop">Lớp</label>
+              <input id="input-lop" class="form-input" type="text" placeholder="SE110" maxlength="10" />
+            </div>
+          </div>
+          <button id="btn-add" class="btn btn-primary" type="submit">
+            <span>➕</span> Thêm &amp; Mô phỏng
+          </button>
+        </form>
+      </div>
+
+      <!-- Delete -->
+      <div class="panel-section">
+        <div class="section-title">Xóa sinh viên</div>
+        <div class="form-group">
+          <label class="form-label" for="input-delete">MSSV cần xóa</label>
+          <input id="input-delete" class="form-input" type="text"
+            placeholder="22521234" maxlength="8" />
+        </div>
+        <button id="btn-delete" class="btn btn-danger btn-sm" style="margin-top:4px">
+          <span>🗑️</span> Xóa &amp; Mô phỏng
+        </button>
+      </div>
+
+      <!-- Search by ID -->
+      <div class="panel-section">
+        <div class="section-title">Tìm theo MSSV (Index Search)</div>
+        <div class="form-group">
+          <label class="form-label" for="input-search-id">MSSV</label>
+          <input id="input-search-id" class="form-input" type="text"
+            placeholder="22521234" maxlength="8" />
+        </div>
+        <button id="btn-search-id" class="btn btn-success btn-sm" style="margin-top:4px">
+          <span>🔍</span> Tìm (O(log n))
+        </button>
+      </div>
+
+      <!-- Search by Name -->
+      <div class="panel-section">
+        <div class="section-title">Tìm theo Tên (Full Scan)</div>
+        <div style="font-size:10px;color:#d97706;background:rgba(217,119,6,0.1);border:1px solid rgba(217,119,6,0.3);border-radius:6px;padding:6px 8px;margin-bottom:8px;line-height:1.5;">
+          ⚠️ Không có index → phải quét toàn bộ cây O(n)
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-search-name">Họ tên (một phần)</label>
+          <input id="input-search-name" class="form-input" type="text"
+            placeholder="Nguyễn" />
+        </div>
+        <button id="btn-search-name" class="btn btn-secondary btn-sm" style="margin-top:4px">
+          <span>👁️</span> Full-scan
+        </button>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="panel-section">
+        <div class="section-title">Thao tác nhanh</div>
+        <div class="btn-group">
+          <button id="btn-sample" class="btn btn-secondary btn-sm">
+            <span>📦</span> Mẫu
+          </button>
+          <button id="btn-clear" class="btn btn-ghost btn-sm">
+            <span>🧹</span> Xóa tất cả
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── CENTER PANEL: Visualization ───────────────────────────────────── -->
+    <section class="center-panel">
+
+      <!-- Tree Canvas -->
+      <div class="tree-canvas-wrapper">
+        <div id="tree-canvas"></div>
+
+        <!-- Legend overlay — góc trái trên -->
+        <div class="legend-overlay">
+          <div class="legend-overlay-title">Chú thích</div>
+          <div class="legend-items">
+            <div class="legend-item"><div class="legend-dot dot-default"></div><span>Key bình thường</span></div>
+            <div class="legend-item"><div class="legend-dot dot-compare"></div><span>Đang so sánh / quét</span></div>
+            <div class="legend-item"><div class="legend-dot dot-found"></div><span>Tìm thấy / Chèn OK</span></div>
+            <div class="legend-item"><div class="legend-dot dot-overflow"></div><span>Tràn / cần Split</span></div>
+            <div class="legend-item"><div class="legend-dot dot-split"></div><span>Key Split / Merge</span></div>
+          </div>
+        </div>
+
+        <div class="canvas-hint">🖱️ Cuộn để zoom · Kéo để di chuyển · Click key để xem SV</div>
+      </div>
+
+      <!-- Step Controls + Log -->
+      <div class="log-panel">
+        <div class="log-header">
+          <span class="log-title">▸ Console / Step Log</span>
+          <div class="log-controls">
+            <div class="log-dot log-dot-r"></div>
+            <div class="log-dot log-dot-y"></div>
+            <div class="log-dot log-dot-g"></div>
+          </div>
+        </div>
+        <div id="log-console"></div>
+      </div>
+
+    </section>
+
+    <!-- ── RIGHT PANEL: Data Table + Step Controls ──────────────────────── -->
+    <aside class="right-panel">
+
+      <!-- Step Controls -->
+      <div class="step-panel">
+        <div class="step-controls">
+          <div class="step-header">
+            <span class="step-title">⚙ Step-by-step</span>
+            <span class="frame-counter" id="frame-counter">Không có bước nào</span>
+          </div>
+          <div class="btn-group-3">
+            <button id="btn-prev" class="btn btn-secondary btn-sm" disabled>
+              ◀ Prev
+            </button>
+            <button id="btn-play" class="btn btn-primary btn-sm" disabled>
+              <span class="icon">▶</span> Tự động
+            </button>
+            <button id="btn-next" class="btn btn-secondary btn-sm" disabled>
+              Next ▶
+            </button>
+          </div>
+          <div style="margin-top:6px">
+            <button id="btn-reset-view" class="btn btn-ghost btn-sm">⏭ Cuối</button>
+          </div>
+          <div class="speed-row">
+            <span class="speed-label-txt">Tốc độ:</span>
+            <input type="range" id="speed-slider" class="speed-slider"
+              min="200" max="2000" step="100" value="800" />
+            <span id="speed-label" class="speed-value">800ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-header">
+        <span class="table-title">📋 Bảng dữ liệu gốc</span>
+        <span class="table-count" id="table-count">0 sinh viên</span>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="student-table">
+          <thead>
+            <tr>
+              <th>MSSV</th>
+              <th>Họ tên</th>
+              <th>GT</th>
+              <th>Ngày sinh</th>
+              <th>GPA</th>
+              <th>Lớp</th>
+            </tr>
+          </thead>
+          <tbody id="student-tbody">
+            <tr>
+              <td colspan="6" class="empty-row">Chưa có dữ liệu</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </aside>
+
+  </main><!-- /.app-body -->
+
+</div><!-- /.app-shell -->
+
+<!-- ── STUDENT POPUP ──────────────────────────────────────────────────────── -->
+<div id="student-popup" class="popup-overlay hidden">
+  <div class="popup-card">
+    <div class="popup-header">
+      <div style="display:flex;align-items:center;gap:12px;flex:1">
+        <div class="popup-avatar">🎓</div>
+        <div>
+          <div class="popup-mssv-badge" id="popup-mssv">22521234</div>
+        </div>
+      </div>
+      <button class="popup-close-btn" id="popup-close">✕</button>
+    </div>
+
+    <div class="popup-name" id="popup-hoten">Nguyễn Văn A</div>
+    <div class="popup-class" id="popup-lop-label">Lớp: <span id="popup-lop">SE110</span></div>
+
+    <div class="popup-fields">
+      <div class="popup-field">
+        <div class="popup-field-label">Giới tính</div>
+        <div class="popup-field-value" id="popup-gioitinh">—</div>
+      </div>
+      <div class="popup-field">
+        <div class="popup-field-label">Ngày sinh</div>
+        <div class="popup-field-value" id="popup-ngaysinh">—</div>
+      </div>
+      <div class="popup-field popup-field-gpa">
+        <div>
+          <div class="popup-field-label">GPA</div>
+          <div class="popup-field-value" id="popup-gpa">—</div>
+        </div>
+        <span class="gpa-badge" id="popup-gpa-badge">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ──────────────────────────────────────────────────────────────── -->
+<div id="toast" class="toast"></div>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────────────────── -->
+<script src="btree.js"></script>
+<script src="visualizer.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+Tạo ứng dụng minh họa sắp xếp ngoại
+Xây dụng ứng dụng quản lý sinh viên, thông tin mỗi sinh gồm Mã SV, Họ và Tên, Giới tính, ....
+
+Ứng dụng cần đáp ứng các thao tác: thêm 1 sinh viên, xóa 1 sinh viên, tìm sinh viên theo Mã SV hoặc theo Họ tên. Sử dụng B-Tree làm chỉ mục để tăng tốc các thao tác. 
+
+Với mỗi thao tác, cần thể hiện được sự thay đổi dữ liệu trên bảng gốc và trên index. Để thuận tiện trong việc minh họa, cây chỉ mục chỉ nên là cây bậc 3.
+
+
+Bài nộp :  
+Ứng dụng để trên github, nộp tại đây file giới thiệu về ứng dụng dạng PDF
+
+======
+
+Yêu cầu ứng dụng : 
+Việc xây dựng một ứng dụng mô phỏng **B-Tree** cho bài toán quản lý sinh viên là một ý tưởng tuyệt vời để hiểu sâu về cách các hệ quản trị cơ sở dữ liệu (như MySQL, PostgreSQL) lưu trữ Index.
+---
+
+## 1. Tiêu chuẩn về Cấu trúc (Structural Visualization)
+B-Tree khác với Binary Search Tree ở chỗ một Node có nhiều Key và nhiều con. 
+* **Hiển thị Node đa khóa:** Mỗi Node phải được vẽ dưới dạng một "mảng" các ô (cells), mỗi ô chứa một Key (MSSV). Giữa các Key là các điểm mấu chốt dẫn đến Node con.
+* **Phân tầng rõ rệt:** Các Node ở cùng một mức (level) phải nằm trên cùng một đường nằm ngang. Điều này giúp người dùng thấy được tính **tự cân bằng (Balanced)** của B-Tree.
+* **Tham số Bậc (Order $m$):** Ứng dụng phải cho phép tùy chỉnh $m$. Khi $m$ thay đổi, hình dạng cây sẽ thay đổi (cây rộng ra hay cao lên), giúp trực quan hóa lý do tại sao B-Tree lại tối ưu cho ổ đĩa.
+
+
+
+---
+
+## 2. Tiêu chuẩn về Hoạt động (Behavioral Visualization)
+Đây là phần "linh hồn" của mô phỏng. Người dùng cần thấy được **quy trình** chứ không chỉ kết quả.
+
+### A. Mô phỏng phép Chèn (Insertion & Split)
+Đây là phần khó nhất của B-Tree. 
+* **Animation Split:** Khi một Node vượt quá $m-1$ khóa, ứng dụng phải có hiệu ứng hoạt họa (animation) cho thấy khóa ở giữa "bay" lên Node cha và Node cũ bị tách làm đôi.
+* **Trạng thái trung gian:** Đừng nhảy bùm một phát ra cây mới. Hãy dùng màu sắc để đánh dấu Node đang bị "overflow" trước khi thực hiện tách.
+
+### B. Mô phỏng Truy vấn (Search Path)
+* **Highlight đường đi:** Khi tìm kiếm một MSSV, ứng dụng phải nhuộm màu các Node và các Key mà thuật toán đang so sánh.
+* **So sánh trong Node:** Vì trong một Node là một mảng đã sắp xếp, bạn có thể mô phỏng việc **Binary Search** ngay bên trong Node đó để tìm hướng đi tiếp theo.
+
+### C. Mô phỏng phép Xóa (Deletion, Merge & Borrow)
+* **Borrow (Mượn):** Hiển thị khóa từ Node anh em xoay qua Node cha rồi hạ xuống Node hiện tại.
+* **Merge (Gộp):** Hiển thị hai Node và một khóa cha "rơi" xuống để nhập thành một Node lớn.
+
+---
+
+## 3. Tiêu chuẩn về Dữ liệu Sinh viên
+Vì bạn làm ứng dụng quản lý sinh viên, phần dữ liệu cần tách biệt giữa **Key** (Chỉ mục) và **Data** (Thông tin chi tiết).
+
+* **Key (Chỉ mục):** Nên dùng **MSSV** làm khóa chính vì nó là duy nhất và có thứ tự rõ ràng.
+* **Data Pointer:** Trực quan hóa việc mỗi Key trong B-Tree sẽ "trỏ" (point) tới một bản ghi đầy đủ (Họ tên, ngày sinh, GPA...). Khi người dùng click vào một Key trên cây, một popup hiện ra thông tin sinh viên đó.
+* **Tìm kiếm theo Tên:** Trong B-Tree, tìm theo tên (không phải Key) sẽ rất chậm (phải duyệt toàn bộ cây). Bạn có thể mô phỏng điều này bằng cách cho một "con chạy" quét qua tất cả các Node để cho thấy sự kém hiệu quả nếu không đánh Index theo tên.
+
+---
+
+## 4. Gợi ý Công nghệ (Tech Stack) cho "AI Student"
+ **D3.js (nếu muốn làm Web):** Đây là tiêu chuẩn vàng cho trực quan hóa dữ liệu, cực kỳ mượt mà cho các hiệu ứng di chuyển Node.
+
+---
+
+## 5. Một kịch bản mô phỏng mẫu
+Để ứng dụng đạt điểm A+, hãy thiết kế kịch bản này:
+1.  Người dùng nhập MSSV `21520001`.
+2.  Hệ thống thực hiện `Insert`.
+3.  Cây tự động thực hiện `Split` nếu cần.
+4.  Người dùng nhấn nút **"Step-by-step"** để xem từng bước con trỏ so sánh giá trị lớn hơn/nhỏ hơn để quyết định rẽ nhánh.
+
+> **Góc nhìn thực tế:** Việc bạn hiểu cách B-Tree hoạt động sẽ giúp bạn giải thích cực tốt phần "Tại sao Index trong Database lại tăng tốc độ truy vấn" khi đi phỏng vấn thực tập sắp tới đấy.
+
+
+Yêu cầu bảng hướng dẫn sử dụng chương trình: 
+- Hãy trình bày bài làm dưới dạng mã latex, không cần chuyển sang PDF.  
+- Các ý cần được triển khai đầy đủ, phải có câu chủ đề, giải thích lập luận rõ ràng, có ví dụ minh họa cụ thể, có hình ảnh minh họa (nếu cần thiết)
+- Trình bày sạch sẽ, khoa học, dễ đọc, dễ hiểu
+- Không đạo văn, không sao chép từ bất kỳ nguồn nào
+- Không được viết kiểu gạch đầu dòng liệt kê sơ sài, phải trình bày thành các đoạn văn hoàn chỉnh
+
